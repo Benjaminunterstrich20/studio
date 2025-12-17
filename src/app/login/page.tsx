@@ -9,7 +9,10 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFirebase } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +46,24 @@ export default function LoginPage() {
     },
   });
 
+  const handleSignUp = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: 'Konto erstellt',
+        description: 'Ihr Konto wurde erfolgreich erstellt. Sie werden nun weitergeleitet.',
+      });
+      router.push('/admin/new-article');
+    } catch (error) {
+      console.error('Fehler bei der Registrierung', error);
+      toast({
+        variant: 'destructive',
+        title: 'Registrierung fehlgeschlagen',
+        description: 'Dieses Konto existiert möglicherweise bereits oder die Anmeldeinformationen sind ungültig.',
+      });
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
@@ -52,7 +73,8 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Anmeldung fehlgeschlagen',
-        description: 'Bitte überprüfen Sie Ihre E-Mail-Adresse und Ihr Passwort.',
+        description:
+          'Bitte überprüfen Sie Ihre E-Mail-Adresse und Ihr Passwort.',
       });
     }
   };
@@ -99,9 +121,19 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Anmelden
-              </Button>
+              <div className="flex flex-col space-y-2">
+                <Button type="submit" className="w-full">
+                  Anmelden
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={form.handleSubmit(handleSignUp)}
+                >
+                  Konto erstellen (temporär)
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>
