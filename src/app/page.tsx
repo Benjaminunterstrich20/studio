@@ -12,7 +12,7 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <section className="mb-12">
         <h1 className="mb-6 font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          Important Announcements
+          Wichtige Ankündigungen
         </h1>
         <div className="grid gap-8 md:grid-cols-2">
           {prioritizedArticles.map((article) => (
@@ -24,11 +24,11 @@ export default function Home() {
       <section>
         <div className="mb-6 flex items-center justify-between">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-foreground">
-            Latest News
+            Aktuelle Nachrichten
           </h2>
           <Button variant="ghost" asChild>
             <Link href="/news">
-              View all <ArrowRight className="ml-2 h-4 w-4" />
+              Alle ansehen <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

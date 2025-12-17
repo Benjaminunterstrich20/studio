@@ -11,6 +11,7 @@ import type { Article } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
+import { de } from 'date-fns/locale';
 
 type ArticleCardProps = {
   article: Article;
@@ -54,8 +55,8 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
         </CardContent>
         <CardFooter className={cn('pb-6', isFeatured ? 'sm:px-8 sm:pb-8' : 'px-6 pb-6')}>
           <p className="text-sm text-muted-foreground">
-            By {article.author} •{' '}
-            {format(parseISO(article.publishedAt), 'MMMM d, yyyy')}
+            Von {article.author} •{' '}
+            {format(parseISO(article.publishedAt), 'd. MMMM yyyy', { locale: de })}
           </p>
         </CardFooter>
       </Card>

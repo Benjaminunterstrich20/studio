@@ -5,6 +5,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { events } from '@/lib/data';
 import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 import { Badge } from './ui/badge';
 
 export function EventCalendar() {
@@ -32,6 +33,7 @@ export function EventCalendar() {
               selected={date}
               onSelect={setDate}
               className="w-full"
+              locale={de}
               modifiers={{ event: eventDays }}
               modifiersStyles={{
                 event: {
@@ -47,8 +49,8 @@ export function EventCalendar() {
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">
-              Events for{' '}
-              {date ? format(date, 'MMMM d, yyyy') : 'selected date'}
+              Veranstaltungen für{' '}
+              {date ? format(date, 'd. MMMM yyyy', { locale: de }) : 'ausgewähltes Datum'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -65,7 +67,7 @@ export function EventCalendar() {
               </ul>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No events scheduled for this day.
+                Für diesen Tag sind keine Veranstaltungen geplant.
               </p>
             )}
           </CardContent>

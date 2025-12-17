@@ -53,7 +53,7 @@ function MobileNav() {
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="md:hidden">
           <Menu className="h-4 w-4" />
-          <span className="sr-only">Toggle navigation menu</span>
+          <span className="sr-only">Navigationsmenü umschalten</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left">
@@ -73,7 +73,7 @@ function MobileNav() {
           </nav>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search articles..." className="pl-9" />
+            <Input placeholder="Artikel suchen..." className="pl-9" />
           </div>
         </div>
       </SheetContent>
@@ -97,13 +97,13 @@ export function Header() {
           {!isMobile && (
             <div className="relative w-full max-w-xs">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search articles..." className="pl-9" />
+              <Input placeholder="Artikel suchen..." className="pl-9" />
             </div>
           )}
 
           <Button asChild>
             <a href="https://example.com" target="_blank" rel="noopener noreferrer">
-              School Site
+              Schulwebseite
               <ExternalLink className="ml-2 h-4 w-4" />
             </a>
           </Button>

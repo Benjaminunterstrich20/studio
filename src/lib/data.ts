@@ -1,6 +1,6 @@
 import { PlaceHolderImages } from './placeholder-images';
 
-export type Category = 'News' | 'Announcements' | 'School Life' | 'Events';
+export type Category = 'Nachrichten' | 'Ankündigungen' | 'Schulleben' | 'Veranstaltungen';
 
 export type Article = {
   id: number;
@@ -22,106 +22,106 @@ export type Event = {
 };
 
 export const navItems = [
-  { name: 'News', href: '/news' },
-  { name: 'Announcements', href: '/announcements' },
-  { name: 'School Life', href: '/school-life' },
-  { name: 'Events', href: '/events' },
+  { name: 'Nachrichten', href: '/news' },
+  { name: 'Ankündigungen', href: '/announcements' },
+  { name: 'Schulleben', href: '/school-life' },
+  { name: 'Veranstaltungen', href: '/events' },
 ];
 
 export const articles: Article[] = [
   {
     id: 1,
     slug: 'new-school-year-kickoff',
-    title: 'New School Year Kicks Off with Annual Assembly',
+    title: 'Neues Schuljahr beginnt mit jährlicher Versammlung',
     content:
-      'Our school year began with an inspiring assembly, welcoming new and returning students. Principal Thompson outlined the vision for the year, emphasizing community and academic excellence. We are excited for what lies ahead!',
+      'Unser Schuljahr begann mit einer inspirierenden Versammlung, die neue und wiederkehrende Schüler willkommen hieß. Rektor Thompson skizzierte die Vision für das Jahr und betonte Gemeinschaft und akademische Exzellenz. Wir sind gespannt auf das, was vor uns liegt!',
     imageId: 'auditorium',
-    category: 'Announcements',
-    author: 'Admin Office',
+    category: 'Ankündigungen',
+    author: 'Verwaltungsbüro',
     publishedAt: '2023-09-01',
     prioritized: true,
   },
   {
     id: 2,
     slug: 'parent-teacher-conferences-schedule',
-    title: 'Parent-Teacher Conferences Scheduled for October',
+    title: 'Eltern-Lehrer-Konferenzen für Oktober geplant',
     content:
-      'Mark your calendars! Parent-Teacher Conferences will be held on October 15th and 16th. This is a great opportunity to discuss your child\'s progress. Sign-up sheets will be available online next week.',
+      'Merken Sie sich das Datum vor! Die Eltern-Lehrer-Konferenzen finden am 15. und 16. Oktober statt. Dies ist eine großartige Gelegenheit, den Fortschritt Ihres Kindes zu besprechen. Anmeldelisten werden nächste Woche online verfügbar sein.',
     imageId: 'classroom',
-    category: 'Announcements',
-    author: 'Guidance Department',
+    category: 'Ankündigungen',
+    author: 'Beratungsabteilung',
     publishedAt: '2023-09-15',
     prioritized: true,
   },
   {
     id: 3,
     slug: 'varsity-soccer-team-wins-championship',
-    title: 'Varsity Soccer Team Wins District Championship',
+    title: 'Fußball-Uni-Mannschaft gewinnt Bezirksmeisterschaft',
     content:
-      'A huge congratulations to our varsity soccer team for their thrilling 2-1 victory in the district finals! Their hard work and dedication have paid off. The final goal was scored by senior captain, Jane Doe, in the last minute of the game.',
+      'Herzlichen Glückwunsch an unsere Fußball-Uni-Mannschaft zu ihrem aufregenden 2:1-Sieg im Bezirksfinale! Ihre harte Arbeit und ihr Engagement haben sich ausgezahlt. Das letzte Tor erzielte Senior-Kapitänin Jane Doe in der letzten Spielminute.',
     imageId: 'sports-day',
-    category: 'News',
-    author: 'Athletics Department',
+    category: 'Nachrichten',
+    author: 'Sportabteilung',
     publishedAt: '2023-10-28',
     prioritized: false,
   },
   {
     id: 4,
     slug: 'annual-science-fair-showcases-innovation',
-    title: 'Annual Science Fair Showcases Student Innovation',
+    title: 'Jährliche Wissenschaftsmesse zeigt studentische Innovation',
     content:
-      'This year\'s science fair was a massive success, with projects ranging from renewable energy solutions to robotics. The grand prize went to sophomore Michael Smith for his project on water purification.',
+      'Die diesjährige Wissenschaftsmesse war ein großer Erfolg mit Projekten, die von Lösungen für erneuerbare Energien bis hin zu Robotik reichten. Der Hauptpreis ging an den Zehntklässler Michael Smith für sein Projekt zur Wasserreinigung.',
     imageId: 'science-fair',
-    category: 'School Life',
-    author: 'Science Department',
+    category: 'Schulleben',
+    author: 'Wissenschaftsabteilung',
     publishedAt: '2023-11-05',
     prioritized: false,
   },
   {
     id: 5,
     slug: 'meet-the-new-art-teacher',
-    title: 'A Spotlight on Our New Art Teacher, Mr. Evans',
+    title: 'Ein Scheinwerferlicht auf unseren neuen Kunstlehrer, Herrn Evans',
     content:
-      'We extend a warm welcome to Mr. David Evans, our new art teacher. With over 10 years of experience, he brings a passion for creativity and is excited to inspire students in our newly renovated art studio.',
+      'Wir heißen Herrn David Evans, unseren neuen Kunstlehrer, herzlich willkommen. Mit über 10 Jahren Erfahrung bringt er eine Leidenschaft für Kreativität mit und freut sich darauf, die Schüler in unserem neu renovierten Kunstatelier zu inspirieren.',
     imageId: 'art-class',
-    category: 'School Life',
-    author: 'Student Council',
+    category: 'Schulleben',
+    author: 'Schülerrat',
     publishedAt: '2023-09-10',
     prioritized: false,
   },
   {
     id: 6,
     slug: 'library-receives-new-book-donation',
-    title: 'Library Receives a Generous Donation of New Books',
+    title: 'Bibliothek erhält eine großzügige Spende neuer Bücher',
     content:
-      'Thanks to a generous donation from a local community partner, our library is now filled with hundreds of new titles, from classic literature to modern bestsellers. Come check them out!',
+      'Dank einer großzügigen Spende eines lokalen Gemeinschaftspartners ist unsere Bibliothek jetzt mit Hunderten von neuen Titeln gefüllt, von klassischer Literatur bis hin zu modernen Bestsellern. Kommen Sie und schauen Sie sie sich an!',
     imageId: 'library',
-    category: 'News',
-    author: 'Ms. Gable, Librarian',
+    category: 'Nachrichten',
+    author: 'Frau Gable, Bibliothekarin',
     publishedAt: '2023-10-02',
     prioritized: false,
   },
   {
     id: 7,
     slug: 'upcoming-winter-concert',
-    title: 'Get Ready for the Annual Winter Concert!',
+    title: 'Machen Sie sich bereit für das jährliche Winterkonzert!',
     content:
-      'The music department is proud to announce the upcoming Winter Concert on December 12th. Our talented students from the choir, band, and orchestra will perform a selection of festive and classical pieces.',
+      'Die Musikabteilung ist stolz darauf, das bevorstehende Winterkonzert am 12. Dezember anzukündigen. Unsere talentierten Schüler aus Chor, Band und Orchester werden eine Auswahl an festlichen und klassischen Stücken aufführen.',
     imageId: 'auditorium',
-    category: 'Events',
-    author: 'Music Department',
+    category: 'Veranstaltungen',
+    author: 'Musikabteilung',
     publishedAt: '2023-11-20',
     prioritized: false,
   },
   {
     id: 8,
     slug: 'student-collaboration-project',
-    title: 'Cross-Department Collaboration Project a Success',
+    title: 'Abteilungsübergreifendes Zusammenarbeitsprojekt ein Erfolg',
     content:
-      'Students from the history and computer science departments teamed up to create an interactive digital museum of local history. The project has been praised for its innovation and educational value.',
+      'Schüler aus den Geschichts- und Informatikabteilungen haben sich zusammengetan, um ein interaktives digitales Museum zur lokalen Geschichte zu erstellen. Das Projekt wurde für seine Innovation und seinen Bildungswert gelobt.',
     imageId: 'students-collaborating',
-    category: 'News',
-    author: 'Tech Department',
+    category: 'Nachrichten',
+    author: 'Technische Abteilung',
     publishedAt: '2023-11-15',
     prioritized: false,
   },
@@ -130,32 +130,32 @@ export const articles: Article[] = [
 export const events: Event[] = [
   {
     id: 1,
-    title: 'School Assembly',
-    description: 'All-school assembly to kick off the new semester.',
+    title: 'Schulversammlung',
+    description: 'Gesamtschulversammlung zum Auftakt des neuen Semesters.',
     date: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
   },
   {
     id: 2,
-    title: 'Parent-Teacher Conferences',
-    description: 'Meet with teachers to discuss student progress.',
+    title: 'Eltern-Lehrer-Konferenzen',
+    description: 'Treffen Sie sich mit Lehrern, um den Schülerfortschritt zu besprechen.',
     date: new Date(new Date().getFullYear(), new Date().getMonth(), 15),
   },
   {
     id: 3,
-    title: 'Parent-Teacher Conferences',
-    description: 'Meet with teachers to discuss student progress.',
+    title: 'Eltern-Lehrer-Konferenzen',
+    description: 'Treffen Sie sich mit Lehrern, um den Schülerfortschritt zu besprechen.',
     date: new Date(new Date().getFullYear(), new Date().getMonth(), 16),
   },
   {
     id: 4,
-    title: 'Homecoming Football Game',
-    description: 'Cheer on the home team!',
+    title: 'Heimkehr-Fußballspiel',
+    description: 'Feuern Sie die Heimmannschaft an!',
     date: new Date(new Date().getFullYear(), new Date().getMonth(), 22),
   },
   {
     id: 5,
-    title: 'Winter Band Concert',
-    description: 'Enjoy a night of music from our talented students.',
+    title: 'Winter-Bandkonzert',
+    description: 'Genießen Sie einen Abend mit Musik von unseren talentierten Schülern.',
     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 12),
   },
 ];
