@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -21,14 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useFirebase, useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import {
-  collection,
-  doc,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { navItems } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -42,10 +36,15 @@ const articleSchema = z.object({
 });
 
 export default function NewArticlePage() {
-  const { firestore } = useFirebase();
-  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn !== 'true') {
+      router.push('/login');
+    }
+  }, [router]);
 
   const form = useForm<z.infer<typeof articleSchema>>({
     resolver: zodResolver(articleSchema),
@@ -58,46 +57,15 @@ export default function NewArticlePage() {
     },
   });
 
-  if (isUserLoading) {
-    return <div>Wird geladen...</div>;
-  }
-
-  if (!user) {
-    router.push('/login');
-    return null;
-  }
-
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
-    try {
-      const slug = values.title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .trim()
-        .replace(/[\s-]+/g, '-');
-      const articleRef = doc(collection(firestore, 'articles'), slug);
-      await setDoc(articleRef, {
-        ...values,
-        slug,
-        author: user.displayName || 'Anonym',
-        authorId: user.uid,
-        publishedAt: new Date().toISOString(),
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      toast({
-        title: 'Artikel erstellt!',
-        description: 'Ihr neuer Artikel wurde erfolgreich veröffentlicht.',
-      });
-      router.push(`/article/${slug}`);
-    } catch (error) {
-      console.error('Fehler beim Erstellen des Artikels', error);
-      toast({
-        variant: 'destructive',
-        title: 'Oh oh! Etwas ist schief gelaufen.',
-        description:
-          'Der Artikel konnte nicht erstellt werden. Bitte versuchen Sie es erneut.',
-      });
-    }
+    // Since there's no database, we'll just show a success message.
+    console.log('Neuer Artikel übermittelt:', values);
+    toast({
+      title: 'Artikel (vorgetäuscht) erstellt!',
+      description:
+        'In einer echten Anwendung wäre dieser Artikel in einer Datenbank gespeichert.',
+    });
+    form.reset();
   };
 
   return (

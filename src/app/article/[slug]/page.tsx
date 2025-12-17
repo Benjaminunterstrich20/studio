@@ -5,23 +5,14 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { useDoc, useFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import type { Article } from '@/lib/data';
+import { articles, type Article } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function ArticlePage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const { firestore } = useFirebase();
-
-  const articleRef = doc(firestore, 'articles', slug);
-  const { data: article, isLoading } = useDoc<Article>(articleRef);
-
-  if (isLoading) {
-    return <div>Wird geladen...</div>;
-  }
+  const article = articles.find((a) => a.slug === slug);
 
   if (!article) {
     notFound();
@@ -30,13 +21,19 @@ export default function ArticlePage() {
   const placeholderImage = PlaceHolderImages.find(
     (img) => img.id === article.imageId
   );
-  const imageUrl = article.imageId && placeholderImage ? placeholderImage.imageUrl : 'https://picsum.photos/seed/placeholder/1200/800';
-  const imageHint = article.imageId && placeholderImage ? placeholderImage.imageHint : 'placeholder';
+  const imageUrl =
+    article.imageId && placeholderImage
+      ? placeholderImage.imageUrl
+      : 'https://picsum.photos/seed/placeholder/1200/800';
+  const imageHint =
+    article.imageId && placeholderImage
+      ? placeholderImage.imageHint
+      : 'placeholder';
 
   return (
-    <article className="container mx-auto max-w-4xl px-4 py-8 md:py-12">
+    <article className="container mx-auto max-w-4xl px-4 py-8 md:py-12 animate-fade-in-up">
       <div className="mb-8">
-        <div className="relative mb-8 h-96 w-full rounded-lg">
+        <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
           <Image
             src={imageUrl}
             alt={article.title}

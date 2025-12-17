@@ -1,26 +1,31 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   ExternalLink,
   Menu,
   Search,
   PlusCircle,
   LogOut,
-  LogIn
-} from "lucide-react";
-import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { navItems } from "@/lib/data";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
-import React from "react";
-import { useUser, useFirebase } from "@/firebase";
+  LogIn,
+} from 'lucide-react';
+import { Logo } from '@/components/logo';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { navItems } from '@/lib/data';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
+import React, { useState, useEffect } from 'react';
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -28,8 +33,8 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       className={cn(
-        "text-sm font-medium transition-colors hover:text-primary",
-        isActive ? "text-primary" : "text-muted-foreground"
+        'text-sm font-medium transition-colors hover:text-primary',
+        isActive ? 'text-primary' : 'text-muted-foreground'
       )}
     >
       {children}
@@ -37,9 +42,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   );
 }
 
-function MainNav() {
-  const { user } = useUser();
-  
+function MainNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <nav className="hidden items-center space-x-6 md:flex">
       {navItems.map((item) => (
@@ -47,16 +50,13 @@ function MainNav() {
           {item.name}
         </NavLink>
       ))}
-       {user && (
-        <NavLink href="/admin/new-article">Neuer Artikel</NavLink>
-      )}
+      {isLoggedIn && <NavLink href="/admin/new-article">Neuer Artikel</NavLink>}
     </nav>
   );
 }
 
-function MobileNav() {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const { user } = useUser();
+function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -80,8 +80,8 @@ function MobileNav() {
                 {item.name}
               </Link>
             ))}
-            {user && (
-               <Link
+            {isLoggedIn && (
+              <Link
                 href="/admin/new-article"
                 className="text-muted-foreground hover:text-foreground"
                 onClick={() => setIsOpen(false)}
@@ -102,8 +102,21 @@ function MobileNav() {
 
 export function Header() {
   const isMobile = useIsMobile();
-  const { user, isUserLoading } = useUser();
-  const { auth } = useFirebase();
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Since this runs on the client, window is available
+    setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+    setIsLoading(false);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+    router.push('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -111,9 +124,9 @@ export function Header() {
         <div className="mr-6 flex items-center">
           <Logo />
         </div>
-        
-        <MainNav />
-        
+
+        <MainNav isLoggedIn={isLoggedIn} />
+
         <div className="flex flex-1 items-center justify-end gap-4">
           {!isMobile && (
             <div className="relative w-full max-w-xs">
@@ -123,15 +136,19 @@ export function Header() {
           )}
 
           <Button asChild>
-            <a href="https://example.com" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://example.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Schulwebseite
               <ExternalLink className="ml-2 h-4 w-4" />
             </a>
           </Button>
 
-          {!isUserLoading && (
+          {!isLoading && (
             <>
-              {user ? (
+              {isLoggedIn ? (
                 <>
                   {!isMobile && (
                     <Button variant="outline" asChild>
@@ -141,7 +158,7 @@ export function Header() {
                       </Link>
                     </Button>
                   )}
-                  <Button variant="ghost" onClick={() => auth.signOut()}>
+                  <Button variant="ghost" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Abmelden
                   </Button>
@@ -156,8 +173,7 @@ export function Header() {
               )}
             </>
           )}
-
-          <MobileNav />
+          <MobileNav isLoggedIn={isLoggedIn} />
         </div>
       </div>
     </header>

@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -8,134 +10,73 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useFirebase } from '@/firebase';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
-const loginSchema = z.object({
-  email: z.string().email('Ungültige E-Mail-Adresse'),
-  password: z.string().min(1, 'Passwort ist erforderlich'),
-});
-
 export default function LoginPage() {
-  const { auth } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const handleSignUp = async (values: z.infer<typeof loginSchema>) => {
-    try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === 'benni' && password === '12345') {
+      // In a real app, you'd set a cookie or session token here.
+      // For this simple case, we'll use localStorage.
+      localStorage.setItem('isLoggedIn', 'true');
       toast({
-        title: 'Konto erstellt',
-        description: 'Ihr Konto wurde erfolgreich erstellt. Sie werden nun weitergeleitet.',
+        title: 'Anmeldung erfolgreich',
+        description: 'Sie werden weitergeleitet.',
       });
       router.push('/admin/new-article');
-    } catch (error) {
-      console.error('Fehler bei der Registrierung', error);
-      toast({
-        variant: 'destructive',
-        title: 'Registrierung fehlgeschlagen',
-        description: 'Dieses Konto existiert möglicherweise bereits oder die Anmeldeinformationen sind ungültig.',
-      });
-    }
-  };
-
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      router.push('/admin/new-article');
-    } catch (error) {
-      console.error('Fehler beim Anmelden', error);
+    } else {
       toast({
         variant: 'destructive',
         title: 'Anmeldung fehlgeschlagen',
-        description:
-          'Bitte überprüfen Sie Ihre E-Mail-Adresse und Ihr Passwort.',
+        description: 'Bitte überprüfen Sie Ihren Benutzernamen und Ihr Passwort.',
       });
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="flex min-h-[calc(100vh-14rem)] items-center justify-center bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Anmelden</CardTitle>
+          <CardTitle className="text-2xl font-bold">Admin-Anmeldung</CardTitle>
           <CardDescription>
-            Melden Sie sich an, um neue Artikel zu erstellen und zu verwalten.
+            Melden Sie sich an, um neue Artikel zu erstellen.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>E-Mail</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="ihre.email@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Benutzername</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="benni"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Passwort</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="********" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Passwort</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-              <div className="flex flex-col space-y-2">
-                <Button type="submit" className="w-full">
-                  Anmelden
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={form.handleSubmit(handleSignUp)}
-                >
-                  Konto erstellen (temporär)
-                </Button>
-              </div>
-            </form>
-          </Form>
+            </div>
+            <Button type="submit" className="w-full">
+              Anmelden
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
