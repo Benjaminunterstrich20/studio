@@ -1,141 +1,35 @@
-/**
- * This ruleset enforces a security model for a news and announcement application.
- *
- * Core Philosophy:
- * The ruleset allows for public consumption of all data (articles, authors, categories, events)
- * while restricting write operations to authenticated users for the content they own.
- * This is a "Public Read with Owner-Only Writes" model.
- *
- * Data Structure:
- * The data is organized into four flat, top-level collections: /articles, /authors, /categories, and /events.
- * This structure simplifies queries and security rules.
- *
- * Key Security Decisions:
- * - Articles are publicly readable by anyone, but can only be created, updated, or deleted
- *   by the authenticated user who is their author.
- * - Reference data collections (/authors, /categories, /events) are publicly readable but are
- *   locked down to prevent any client-side writes. It is assumed this data is managed
- *   by a trusted backend admin process or through the Firebase Console.
- * - All write operations require a user to be signed in.
- *
- * Denormalization for Authorization:
- * The /articles documents contain a denormalized `authorId` field. This is critical for performance
- * and security, as it allows rules to check for ownership directly on the document without
- * needing extra, costly `get()` calls to other collections.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --------------------------------
-    // Helper Functions
-    // --------------------------------
-
-    /**
-     * Checks if a user is authenticated.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Checks if the currently authenticated user's UID matches the provided userId.
-     */
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
-    /**
-     * Checks if a document exists AND if the current user is the owner.
-     * Used for safe update and delete operations.
-     */
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
-    }
-
-    /**
-     * @description Rules for the 'articles' collection. Articles are public to read but
-     *              can only be written by their authenticated author.
-     * @path        /articles/{articleId}
-     * @allow       An anonymous user (get) an article: `get /articles/some-article-id`
-     * @allow       An authenticated user (create) a new article with their own authorId:
-     *              `create /articles/new-id, { authorId: "user-abc", ... }` where auth.uid is "user-abc".
-     * @deny        An authenticated user (create) an article on behalf of someone else:
-     *              `create /articles/new-id, { authorId: "user-xyz", ... }` where auth.uid is "user-abc".
-     * @deny        An authenticated user (update) an article they do not own.
-     * @principle   Enforces document ownership for writes and ensures relational integrity
-     *              by validating the `authorId` field.
-     */
     match /articles/{articleId} {
-      // Allow anyone to read articles.
-      allow get: if true;
-      allow list: if true;
-
-      // Allow creation only by signed-in users who set themselves as the author.
-      allow create: if isSignedIn() && isOwner(request.resource.data.authorId);
-
-      // Allow updates only by the original author, and ensure the authorId cannot be changed.
-      allow update: if isExistingOwner(resource.data.authorId) && request.resource.data.authorId == resource.data.authorId;
-      
-      // Allow deletion only by the original author of an existing document.
-      allow delete: if isExistingOwner(resource.data.authorId);
+      allow read: if true;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorId;
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorId;
     }
 
-    /**
-     * @description Rules for the 'authors' collection. This is public reference data.
-     * @path        /authors/{authorId}
-     * @allow       Any user (get) an author's public profile: `get /authors/author-xyz`.
-     * @deny        Any user (create) a new author profile. This must be done by an admin.
-     * @principle   Treats the collection as read-only for clients, assuming it's
-     *              managed by a trusted backend or admin.
-     */
-    match /authors/{authorId} {
-      // Allow anyone to read author information.
-      allow get: if true;
-      allow list: if true;
-      
-      // Deny all client-side writes.
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * @description Rules for the 'categories' collection. This is public reference data.
-     * @path        /categories/{categoryId}
-     * @allow       Any user (list) all available categories: `list /categories`.
-     * @deny        Any user (create) a new category. This must be done by an admin.
-     * @principle   Treats the collection as read-only for clients, assuming it's
-     *              managed by a trusted backend or admin.
-     */
     match /categories/{categoryId} {
-      // Allow anyone to read category information.
-      allow get: if true;
-      allow list: if true;
-      
-      // Deny all client-side writes.
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow read: if true;
+      allow write: if false;
     }
 
-    /**
-     * @description Rules for the 'events' collection. This is public reference data.
-     * @path        /events/{eventId}
-     * @allow       Any user (get) a specific event: `get /events/event-xyz`.
-     * @deny        Any user (update) an event. This must be done by an admin.
-     * @principle   Treats the collection as read-only for clients, assuming it's
-     *              managed by a trusted backend or admin.
-     */
     match /events/{eventId} {
-      // Allow anyone to read event information.
-      allow get: if true;
-      allow list: if true;
-      
-      // Deny all client-side writes.
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow read: if true;
+      allow write: if false;
     }
   }
 }

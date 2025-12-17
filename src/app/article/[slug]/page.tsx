@@ -1,19 +1,27 @@
-import { notFound } from 'next/navigation';
+'use client';
+
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { articles } from '@/lib/data';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { useDoc, useFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { Article } from '@/lib/data';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-export function generateStaticParams() {
-  return articles.map((article) => ({
-    slug: article.slug,
-  }));
-}
+export default function ArticlePage() {
+  const params = useParams();
+  const slug = params.slug as string;
 
-export default function ArticlePage({ params }: { params: { slug: string } }) {
-  const article = articles.find((a) => a.slug === params.slug);
+  const { firestore } = useFirebase();
+
+  const articleRef = doc(firestore, 'articles', slug);
+  const { data: article, isLoading } = useDoc<Article>(articleRef);
+
+  if (isLoading) {
+    return <div>Wird geladen...</div>;
+  }
 
   if (!article) {
     notFound();
@@ -22,8 +30,8 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
   const placeholderImage = PlaceHolderImages.find(
     (img) => img.id === article.imageId
   );
-  const imageUrl = placeholderImage?.imageUrl ?? 'https://picsum.photos/seed/placeholder/1200/800';
-  const imageHint = placeholderImage?.imageHint ?? 'placeholder';
+  const imageUrl = article.imageId && placeholderImage ? placeholderImage.imageUrl : 'https://picsum.photos/seed/placeholder/1200/800';
+  const imageHint = article.imageId && placeholderImage ? placeholderImage.imageHint : 'placeholder';
 
   return (
     <article className="container mx-auto max-w-4xl px-4 py-8 md:py-12">
@@ -44,7 +52,8 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           {article.title}
         </h1>
         <p className="text-lg text-muted-foreground">
-          Von {article.author} • {format(parseISO(article.publishedAt), 'd. MMMM yyyy', { locale: de })}
+          {article.author ? `Von ${article.author} • ` : ''}
+          {format(parseISO(article.publishedAt), 'd. MMMM yyyy', { locale: de })}
         </p>
       </div>
       <div className="prose prose-lg max-w-none dark:prose-invert">

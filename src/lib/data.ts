@@ -1,15 +1,14 @@
-import { PlaceHolderImages } from './placeholder-images';
-
 export type Category = 'Nachrichten' | 'Ankündigungen' | 'Schulleben' | 'Veranstaltungen';
 
 export type Article = {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   content: string;
   imageId: string;
   category: Category;
   author: string;
+  authorId?: string;
   publishedAt: string;
   prioritized: boolean;
 };
@@ -30,7 +29,7 @@ export const navItems = [
 
 export const articles: Article[] = [
   {
-    id: 1,
+    id: '1',
     slug: 'new-school-year-kickoff',
     title: 'Neues Schuljahr beginnt mit jährlicher Versammlung',
     content:
@@ -42,7 +41,7 @@ export const articles: Article[] = [
     prioritized: true,
   },
   {
-    id: 2,
+    id: '2',
     slug: 'parent-teacher-conferences-schedule',
     title: 'Eltern-Lehrer-Konferenzen für Oktober geplant',
     content:
@@ -54,7 +53,7 @@ export const articles: Article[] = [
     prioritized: true,
   },
   {
-    id: 3,
+    id: '3',
     slug: 'varsity-soccer-team-wins-championship',
     title: 'Fußball-Uni-Mannschaft gewinnt Bezirksmeisterschaft',
     content:
@@ -66,7 +65,7 @@ export const articles: Article[] = [
     prioritized: false,
   },
   {
-    id: 4,
+    id: '4',
     slug: 'annual-science-fair-showcases-innovation',
     title: 'Jährliche Wissenschaftsmesse zeigt studentische Innovation',
     content:
@@ -78,7 +77,7 @@ export const articles: Article[] = [
     prioritized: false,
   },
   {
-    id: 5,
+    id: '5',
     slug: 'meet-the-new-art-teacher',
     title: 'Ein Scheinwerferlicht auf unseren neuen Kunstlehrer, Herrn Evans',
     content:
@@ -90,7 +89,7 @@ export const articles: Article[] = [
     prioritized: false,
   },
   {
-    id: 6,
+    id: '6',
     slug: 'library-receives-new-book-donation',
     title: 'Bibliothek erhält eine großzügige Spende neuer Bücher',
     content:
@@ -102,7 +101,7 @@ export const articles: Article[] = [
     prioritized: false,
   },
   {
-    id: 7,
+    id: '7',
     slug: 'upcoming-winter-concert',
     title: 'Machen Sie sich bereit für das jährliche Winterkonzert!',
     content:
@@ -114,7 +113,7 @@ export const articles: Article[] = [
     prioritized: false,
   },
   {
-    id: 8,
+    id: '8',
     slug: 'student-collaboration-project',
     title: 'Abteilungsübergreifendes Zusammenarbeitsprojekt ein Erfolg',
     content:

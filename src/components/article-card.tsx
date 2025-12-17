@@ -22,8 +22,8 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
   const placeholderImage = PlaceHolderImages.find(
     (img) => img.id === article.imageId
   );
-  const imageUrl = placeholderImage?.imageUrl ?? 'https://picsum.photos/seed/placeholder/600/400';
-  const imageHint = placeholderImage?.imageHint ?? 'placeholder';
+  const imageUrl = article.imageId && placeholderImage ? placeholderImage.imageUrl : 'https://picsum.photos/seed/placeholder/600/400';
+  const imageHint = article.imageId && placeholderImage ? placeholderImage.imageHint : 'placeholder';
 
   return (
     <Link href={`/article/${article.slug}`} className="group block">
@@ -55,7 +55,7 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
         </CardContent>
         <CardFooter className={cn('pb-6', isFeatured ? 'sm:px-8 sm:pb-8' : 'px-6 pb-6')}>
           <p className="text-sm text-muted-foreground">
-            Von {article.author} •{' '}
+             {article.author ? `Von ${article.author} • ` : ''}
             {format(parseISO(article.publishedAt), 'd. MMMM yyyy', { locale: de })}
           </p>
         </CardFooter>

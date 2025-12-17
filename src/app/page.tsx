@@ -1,12 +1,31 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { articles } from '@/lib/data';
 import { ArticleCard } from '@/components/article-card';
 import { Button } from '@/components/ui/button';
+import { useCollection, useFirebase } from '@/firebase';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
+import type { Article } from '@/lib/data';
 
 export default function Home() {
-  const prioritizedArticles = articles.filter((a) => a.prioritized).slice(0, 2);
-  const latestArticles = articles.filter((a) => !a.prioritized).slice(0, 6);
+  const { firestore } = useFirebase();
+
+  const articlesRef = collection(firestore, 'articles');
+  const articlesQuery = query(
+    articlesRef,
+    orderBy('publishedAt', 'desc'),
+    limit(8)
+  );
+
+  const { data: articles, isLoading } = useCollection<Article>(articlesQuery);
+
+  if (isLoading) {
+    return <div>Wird geladen...</div>;
+  }
+
+  const prioritizedArticles = articles?.filter((a) => a.prioritized).slice(0, 2) || [];
+  const latestArticles = articles?.filter((a) => !a.prioritized).slice(0, 6) || [];
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

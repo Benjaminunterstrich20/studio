@@ -12,7 +12,11 @@
         },
         "authorId": {
           "type": "string",
-          "description": "Reference to the Author who created the article. (Relationship: Author 1:N Article)"
+          "description": "Reference to the UserProfile who created the article."
+        },
+        "author": {
+          "type": "string",
+          "description": "Display name of the author."
         },
         "categoryId": {
           "type": "string",
@@ -31,6 +35,15 @@
           "description": "URL of the image associated with the article.",
           "format": "uri"
         },
+        "slug": {
+          "type": "string",
+          "description": "URL-friendly version of the title."
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp indicating when the article was published."
+        },
         "createdAt": {
           "type": "string",
           "description": "Timestamp indicating when the article was created.",
@@ -40,43 +53,46 @@
           "type": "string",
           "description": "Timestamp indicating when the article was last updated.",
           "format": "date-time"
+        },
+        "prioritized": {
+          "type": "boolean",
+          "description": "Whether the article should be featured."
         }
       },
       "required": [
         "id",
         "authorId",
+        "author",
         "categoryId",
         "title",
         "content",
+        "slug",
+        "publishedAt",
         "createdAt",
         "updatedAt"
       ]
     },
-    "Author": {
+    "UserProfile": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Author",
+      "title": "User Profile",
       "type": "object",
-      "description": "Represents the author of an article.",
+      "description": "Represents a user's profile.",
       "properties": {
-        "id": {
+        "uid": {
           "type": "string",
-          "description": "Unique identifier for the author."
+          "description": "The user's unique ID from Firebase Auth."
         },
-        "name": {
+        "displayName": {
           "type": "string",
-          "description": "Name of the author."
+          "description": "The user's display name."
         },
         "email": {
           "type": "string",
-          "description": "Email address of the author.",
+          "description": "The user's email address.",
           "format": "email"
         }
       },
-      "required": [
-        "id",
-        "name",
-        "email"
-      ]
+      "required": ["uid", "displayName", "email"]
     },
     "Category": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -132,8 +148,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "google.com"
     ]
   },
   "firestore": {
@@ -149,23 +164,23 @@
           "params": [
             {
               "name": "articleId",
-              "description": "Unique identifier for the article."
+              "description": "Unique identifier for the article (slug)."
             }
           ]
         }
       },
       {
-        "path": "/authors/{authorId}",
+        "path": "/users/{userId}",
         "definition": {
-          "entityName": "Author",
+          "entityName": "UserProfile",
           "schema": {
-            "$ref": "#/backend/entities/Author"
+            "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores author information.",
+          "description": "Stores user profile information.",
           "params": [
             {
-              "name": "authorId",
-              "description": "Unique identifier for the author."
+              "name": "userId",
+              "description": "Unique identifier for the user (UID)."
             }
           ]
         }
@@ -202,7 +217,6 @@
           ]
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to support a news and announcement application with article and event management capabilities. It leverages path-based ownership for author-related data and a dedicated collection for categories. This ensures clear ownership, simplifies security rules, and facilitates efficient data retrieval. To achieve Authorization Independence (CRITICAL) and support the required QAPs, the `Article` collection denormalizes the `authorId`, preventing the need for `get()` calls in the rules. Since user roles are not mentioned, only the author is considered for the ability to write new articles."
+    ]
   }
 }
