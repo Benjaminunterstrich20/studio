@@ -9,20 +9,51 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFirebase } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+
+const loginSchema = z.object({
+  email: z.string().email('Ungültige E-Mail-Adresse'),
+  password: z.string().min(1, 'Passwort ist erforderlich'),
+});
 
 export default function LoginPage() {
   const { auth } = useFirebase();
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      await signInWithPopup(auth, provider);
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push('/admin/new-article');
     } catch (error) {
-      console.error('Error signing in with Google', error);
+      console.error('Fehler beim Anmelden', error);
+      toast({
+        variant: 'destructive',
+        title: 'Anmeldung fehlgeschlagen',
+        description: 'Bitte überprüfen Sie Ihre E-Mail-Adresse und Ihr Passwort.',
+      });
     }
   };
 
@@ -36,11 +67,43 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4">
-            <Button onClick={handleGoogleSignIn} variant="outline">
-              Mit Google anmelden
-            </Button>
-          </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>E-Mail</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="ihre.email@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Passwort</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="********" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full">
+                Anmelden
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
