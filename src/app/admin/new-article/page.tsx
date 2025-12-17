@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Form,
@@ -69,7 +70,7 @@ export default function NewArticlePage() {
   };
 
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-8 md:py-12">
+    <div className="container mx-auto max-w-2xl px-4 py-8 md:py-12 animate-fade-in-up">
       <h1 className="mb-8 font-headline text-3xl font-bold">
         Neuen Artikel erstellen
       </h1>
