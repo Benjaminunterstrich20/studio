@@ -1,0 +1,64 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import type { Article } from '@/lib/data';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
+import { format, parseISO } from 'date-fns';
+
+type ArticleCardProps = {
+  article: Article;
+  isFeatured?: boolean;
+};
+
+export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
+  const placeholderImage = PlaceHolderImages.find(
+    (img) => img.id === article.imageId
+  );
+  const imageUrl = placeholderImage?.imageUrl ?? 'https://picsum.photos/seed/placeholder/600/400';
+  const imageHint = placeholderImage?.imageHint ?? 'placeholder';
+
+  return (
+    <Link href={`/article/${article.slug}`} className="group block">
+      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <CardHeader className="p-0">
+          <div className="relative aspect-[3/2] w-full">
+            <Image
+              src={imageUrl}
+              alt={article.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              data-ai-hint={imageHint}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+        </CardHeader>
+        <CardContent className={cn('p-6', isFeatured ? 'sm:p-8' : 'p-6')}>
+          <Badge variant="secondary" className="mb-2">
+            {article.category}
+          </Badge>
+          <h3
+            className={cn(
+              'font-headline font-semibold tracking-tight text-foreground',
+              isFeatured ? 'text-2xl' : 'text-xl'
+            )}
+          >
+            {article.title}
+          </h3>
+        </CardContent>
+        <CardFooter className={cn('pb-6', isFeatured ? 'sm:px-8 sm:pb-8' : 'px-6 pb-6')}>
+          <p className="text-sm text-muted-foreground">
+            By {article.author} •{' '}
+            {format(parseISO(article.publishedAt), 'MMMM d, yyyy')}
+          </p>
+        </CardFooter>
+      </Card>
+    </Link>
+  );
+}
