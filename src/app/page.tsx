@@ -4,21 +4,11 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { ArticleCard } from '@/components/article-card';
 import { Button } from '@/components/ui/button';
-import { useCollection, useFirestore } from '@/firebase';
-import {
-  collection,
-  query,
-  orderBy,
-  limit,
-} from 'firebase/firestore';
-import type { Article } from '@/lib/data';
+import { useArticleStore } from '@/lib/articles';
 
 export default function Home() {
-  const db = useFirestore();
-  const articlesQuery = db
-    ? query(collection(db, 'articles'), orderBy('publishedAt', 'desc'), limit(6))
-    : null;
-  const { data: articles, loading } = useCollection<Article>(articlesQuery);
+  const { getArticles, loading } = useArticleStore();
+  const articles = getArticles().slice(0, 6);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

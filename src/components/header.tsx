@@ -17,9 +17,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { navItems } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import React, { useState } from 'react';
-import { useUser } from '@/firebase';
-import { getAuth, signOut } from 'firebase/auth';
+import React, { useState, useEffect } from 'react';
 
 function NavLink({
   href,
@@ -105,14 +103,18 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 export function Header() {
   const isMobile = useIsMobile();
   const router = useRouter();
-  const { user, loading } = useUser();
-  const isLoggedIn = !!user;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+    setLoading(false);
+  }, []);
 
   const handleLogout = () => {
-    const auth = getAuth();
-    signOut(auth).then(() => {
-      router.push('/');
-    });
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+    router.push('/');
   };
 
   return (

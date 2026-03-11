@@ -14,56 +14,29 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/firebase';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from 'firebase/auth';
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const auth = useAuth();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) return;
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
+    if (username === 'benni' && password === '12345') {
+      // In a real app, you'd use a secure session management system.
+      // For this example, we'll use localStorage.
+      localStorage.setItem('isLoggedIn', 'true');
       toast({
         title: 'Anmeldung erfolgreich',
         description: 'Sie werden weitergeleitet.',
       });
       router.push('/admin/new-article');
-    } catch (error: any) {
+    } else {
       toast({
         variant: 'destructive',
         title: 'Anmeldung fehlgeschlagen',
-        description:
-          error.code === 'auth/invalid-credential'
-            ? 'Falsche E-Mail oder falsches Passwort.'
-            : error.message,
-      });
-    }
-  };
-
-  const handleCreateAccount = async () => {
-     if (!auth) return;
-
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      toast({
-        title: 'Konto erstellt!',
-        description: 'Sie können sich jetzt anmelden.',
-      });
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Kontoerstellung fehlgeschlagen',
-        description: error.message,
+        description: 'Falscher Benutzername oder falsches Passwort.',
       });
     }
   };
@@ -80,13 +53,13 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-Mail</Label>
+              <Label htmlFor="username">Benutzername</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="benni@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="benni"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -106,12 +79,6 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex-col gap-4">
-           <p className="text-xs text-muted-foreground">Noch kein Konto?</p>
-            <Button variant="outline" className="w-full" onClick={handleCreateAccount}>
-              Admin-Konto erstellen
-            </Button>
-        </CardFooter>
       </Card>
     </div>
   );

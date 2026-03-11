@@ -1,21 +1,11 @@
 'use client';
 
 import { ArticleCard } from '@/components/article-card';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
-import type { Article } from '@/lib/data';
+import { useArticleStore } from '@/lib/articles';
 
 export default function SchoolLifePage() {
-  const db = useFirestore();
-  const articlesQuery = db
-    ? query(
-        collection(db, 'articles'),
-        where('category', '==', 'Schulleben'),
-        orderBy('publishedAt', 'desc')
-      )
-    : null;
-  const { data: schoolLifeArticles, loading } =
-    useCollection<Article>(articlesQuery);
+  const { getArticlesByCategory, loading } = useArticleStore();
+  const schoolLifeArticles = getArticlesByCategory('Schulleben');
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

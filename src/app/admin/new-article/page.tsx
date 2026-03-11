@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -27,10 +27,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { navItems, type Category } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useUser, useFirestore } from '@/firebase';
-import { collection, addDoc } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { useArticleStore } from '@/lib/articles';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -40,29 +37,19 @@ const articleSchema = z.object({
   prioritized: z.boolean().default(false),
 });
 
-const createSlug = (title: string) => {
-  return title
-    .toLowerCase()
-    .replace(/ä/g, 'ae')
-    .replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue')
-    .replace(/ß/g, 'ss')
-    .replace(/[^a-z0-9\s-]/g, '') // remove invalid chars
-    .replace(/\s+/g, '-') // collapse whitespace and replace by -
-    .replace(/-+/g, '-'); // collapse dashes
-};
-
 export default function NewArticlePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, loading } = useUser();
-  const db = useFirestore();
+  const [isClient, setIsClient] = useState(false);
+  const { addArticle } = useArticleStore();
 
   useEffect(() => {
-    if (!loading && !user) {
+    setIsClient(true);
+    const loggedIn = localStorage.getItem('isLoggedIn');
+    if (loggedIn !== 'true') {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [router]);
 
   const form = useForm<z.infer<typeof articleSchema>>({
     resolver: zodResolver(articleSchema),
@@ -75,52 +62,27 @@ export default function NewArticlePage() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof articleSchema>) => {
-    if (!db || !user) return;
-
-    const slug = createSlug(values.title);
-    const newArticle = {
+  const onSubmit = (values: z.infer<typeof articleSchema>) => {
+    const newArticle = addArticle({
       ...values,
-      slug: slug,
-      author: user.email || 'Admin',
-      authorId: user.uid,
-      publishedAt: new Date().toISOString(),
       category: values.category as Category,
-      imageId: values.imageId || 'school-building',
-    };
-
-    const articlesCollection = collection(db, 'articles');
-    addDoc(articlesCollection, newArticle)
-      .then((docRef) => {
-        toast({
-          title: 'Artikel erstellt!',
-          description: 'Ihr neuer Artikel wurde hinzugefügt.',
-        });
-        form.reset();
-        router.push(`/article/${slug}`);
-      })
-      .catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({
-          path: articlesCollection.path,
-          operation: 'create',
-          requestResourceData: newArticle,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        toast({
-          variant: 'destructive',
-          title: 'Fehler',
-          description: 'Artikel konnte nicht gespeichert werden.',
-        });
-      });
+    });
+    toast({
+      title: 'Artikel erstellt!',
+      description: 'Ihr neuer Artikel wurde hinzugefügt.',
+    });
+    form.reset();
+    router.push(`/article/${newArticle.slug}`);
   };
 
-  if (loading || !user) {
+  if (!isClient) {
     return (
-      <div className="container mx-auto px-4 py-8">
+       <div className="container mx-auto px-4 py-8">
         <p>Laden...</p>
       </div>
     );
   }
+
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8 md:py-12 animate-fade-in-up">
