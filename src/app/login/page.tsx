@@ -42,7 +42,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-14rem)] items-center justify-center bg-background">
+    <div className="flex min-h-[calc(100vh-14rem)] items-center justify-center bg-background animate-fade-in-up">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Admin-Anmeldung</CardTitle>
