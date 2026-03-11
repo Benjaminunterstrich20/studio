@@ -25,8 +25,9 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { navItems } from '@/lib/data';
+import { navItems, type Category } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useArticles } from '@/context/articles-context';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -36,9 +37,22 @@ const articleSchema = z.object({
   prioritized: z.boolean().default(false),
 });
 
+const createSlug = (title: string) => {
+  return title
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9\s-]/g, '') // remove invalid chars
+    .replace(/\s+/g, '-') // collapse whitespace and replace by -
+    .replace(/-+/g, '-'); // collapse dashes
+};
+
 export default function NewArticlePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { addArticle } = useArticles();
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -59,14 +73,25 @@ export default function NewArticlePage() {
   });
 
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
-    // Since there's no database, we'll just show a success message.
-    console.log('Neuer Artikel übermittelt:', values);
+    const slug = createSlug(values.title);
+    const newArticle = {
+      ...values,
+      id: Date.now().toString(),
+      slug: slug,
+      author: 'Admin',
+      publishedAt: new Date().toISOString(),
+      category: values.category as Category,
+      imageId: values.imageId || 'school-building',
+    };
+
+    addArticle(newArticle);
+
     toast({
-      title: 'Artikel (vorgetäuscht) erstellt!',
-      description:
-        'In einer echten Anwendung wäre dieser Artikel in einer Datenbank gespeichert.',
+      title: 'Artikel erstellt!',
+      description: 'Ihr neuer Artikel wurde hinzugefügt.',
     });
     form.reset();
+    router.push(`/article/${slug}`);
   };
 
   return (

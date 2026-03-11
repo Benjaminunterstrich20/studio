@@ -5,12 +5,13 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { articles, type Article } from '@/lib/data';
+import { useArticles } from '@/context/articles-context';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function ArticlePage() {
   const params = useParams();
   const slug = params.slug as string;
+  const { articles } = useArticles();
 
   const article = articles.find((a) => a.slug === slug);
 

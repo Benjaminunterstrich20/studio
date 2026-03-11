@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { ArticleCard } from '@/components/article-card';
 import { Button } from '@/components/ui/button';
-import { articles } from '@/lib/data';
+import { useArticles } from '@/context/articles-context';
 
 export default function Home() {
+  const { articles } = useArticles();
   const latestArticles = articles.slice(0, 6);
 
   return (
@@ -22,17 +23,27 @@ export default function Home() {
             </Link>
           </Button>
         </div>
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {latestArticles.map((article, index) => (
-            <div
-              key={article.id}
-              className="animate-fade-in-up"
-              style={{ animationDelay: `${index * 150 + 450}ms` }}
-            >
-              <ArticleCard article={article} />
-            </div>
-          ))}
-        </div>
+        {latestArticles.length > 0 ? (
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {latestArticles.map((article, index) => (
+              <div
+                key={article.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 150 + 450}ms` }}
+              >
+                <ArticleCard article={article} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-16 text-center text-muted-foreground">
+            <p>Noch keine Artikel vorhanden.</p>
+            <p>
+              Erstellen Sie Ihren ersten Artikel auf der Seite &quot;Neuer
+              Artikel&quot;.
+            </p>
+          </div>
+        )}
       </section>
     </div>
   );

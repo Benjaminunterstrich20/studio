@@ -1,7 +1,10 @@
+'use client';
+
 import { ArticleCard } from '@/components/article-card';
-import { articles } from '@/lib/data';
+import { useArticles } from '@/context/articles-context';
 
 export default function AnnouncementsPage() {
+  const { articles } = useArticles();
   const announcementArticles = articles.filter(
     (article) => article.category === 'Ankündigungen'
   );
@@ -16,11 +19,15 @@ export default function AnnouncementsPage() {
           Wichtige Updates und Hinweise für Schüler, Eltern und Mitarbeiter.
         </p>
       </header>
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {announcementArticles.map((article) => (
-          <ArticleCard key={article.id} article={article} />
-        ))}
-      </div>
+      {announcementArticles.length > 0 ? (
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {announcementArticles.map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted-foreground">Keine Ankündigungen gefunden.</p>
+      )}
     </div>
   );
 }

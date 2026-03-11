@@ -1,7 +1,10 @@
+'use client';
+
 import { ArticleCard } from '@/components/article-card';
-import { articles } from '@/lib/data';
+import { useArticles } from '@/context/articles-context';
 
 export default function SchoolLifePage() {
+  const { articles } = useArticles();
   const schoolLifeArticles = articles.filter(
     (article) => article.category === 'Schulleben'
   );
@@ -16,11 +19,17 @@ export default function SchoolLifePage() {
           Ein Einblick in Schüleraktivitäten, Clubs und die Campus-Kultur.
         </p>
       </header>
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {schoolLifeArticles.map((article) => (
-          <ArticleCard key={article.id} article={article} />
-        ))}
-      </div>
+      {schoolLifeArticles.length > 0 ? (
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {schoolLifeArticles.map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted-foreground">
+          Keine Artikel zum Schulleben gefunden.
+        </p>
+      )}
     </div>
   );
 }

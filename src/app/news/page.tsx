@@ -1,7 +1,10 @@
+'use client';
+
 import { ArticleCard } from '@/components/article-card';
-import { articles } from '@/lib/data';
+import { useArticles } from '@/context/articles-context';
 
 export default function NewsPage() {
+  const { articles } = useArticles();
   const newsArticles = articles.filter(
     (article) => article.category === 'Nachrichten'
   );
@@ -16,11 +19,15 @@ export default function NewsPage() {
           Die neuesten Updates und Geschichten aus unserer Schulgemeinschaft.
         </p>
       </header>
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {newsArticles.map((article) => (
-          <ArticleCard key={article.id} article={article} />
-        ))}
-      </div>
+      {newsArticles.length > 0 ? (
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {newsArticles.map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted-foreground">Keine Nachrichtenartikel gefunden.</p>
+      )}
     </div>
   );
 }
