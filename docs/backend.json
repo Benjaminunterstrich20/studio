@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "Article": {
+      "title": "Article",
+      "description": "A news article or announcement.",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "imageId": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "prioritized": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "slug",
+        "title",
+        "content",
+        "category",
+        "author",
+        "publishedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "email_password"
+    ]
+  },
+  "firestore": {
+    "/articles/{articleId}": {
+      "schema": {
+        "$ref": "#/entities/Article"
+      },
+      "description": "Collection of articles."
+    }
+  }
+}

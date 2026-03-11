@@ -17,7 +17,9 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { navItems } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useUser } from '@/firebase';
+import { getAuth, signOut } from 'firebase/auth';
 
 function NavLink({
   href,
@@ -103,19 +105,14 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 export function Header() {
   const isMobile = useIsMobile();
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Since this runs on the client, window is available
-    setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
-    setIsLoading(false);
-  }, []);
+  const { user, loading } = useUser();
+  const isLoggedIn = !!user;
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsLoggedIn(false);
-    router.push('/');
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      router.push('/');
+    });
   };
 
   return (
@@ -146,7 +143,7 @@ export function Header() {
             </a>
           </Button>
 
-          {!isLoading && (
+          {!loading && (
             <>
               {isLoggedIn ? (
                 <>

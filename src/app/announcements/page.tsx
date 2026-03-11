@@ -1,13 +1,21 @@
 'use client';
 
 import { ArticleCard } from '@/components/article-card';
-import { useArticles } from '@/context/articles-context';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import type { Article } from '@/lib/data';
 
 export default function AnnouncementsPage() {
-  const { articles } = useArticles();
-  const announcementArticles = articles.filter(
-    (article) => article.category === 'Ankündigungen'
-  );
+  const db = useFirestore();
+  const articlesQuery = db
+    ? query(
+        collection(db, 'articles'),
+        where('category', '==', 'Ankündigungen'),
+        orderBy('publishedAt', 'desc')
+      )
+    : null;
+  const { data: announcementArticles, loading } =
+    useCollection<Article>(articlesQuery);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -19,14 +27,17 @@ export default function AnnouncementsPage() {
           Wichtige Updates und Hinweise für Schüler, Eltern und Mitarbeiter.
         </p>
       </header>
-      {announcementArticles.length > 0 ? (
+      {loading && <p>Lade Ankündigungen...</p>}
+      {!loading && announcementArticles && announcementArticles.length > 0 ? (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {announcementArticles.map((article) => (
             <ArticleCard key={article.id} article={article} />
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">Keine Ankündigungen gefunden.</p>
+        !loading && (
+          <p className="text-muted-foreground">Keine Ankündigungen gefunden.</p>
+        )
       )}
     </div>
   );

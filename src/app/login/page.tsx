@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -7,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -14,29 +14,56 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/firebase';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth';
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [username, setUsername] = useState('');
+  const auth = useAuth();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'benni' && password === '12345') {
-      // In a real app, you'd set a cookie or session token here.
-      // For this simple case, we'll use localStorage.
-      localStorage.setItem('isLoggedIn', 'true');
+    if (!auth) return;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: 'Anmeldung erfolgreich',
         description: 'Sie werden weitergeleitet.',
       });
       router.push('/admin/new-article');
-    } else {
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Anmeldung fehlgeschlagen',
-        description: 'Bitte überprüfen Sie Ihren Benutzernamen und Ihr Passwort.',
+        description:
+          error.code === 'auth/invalid-credential'
+            ? 'Falsche E-Mail oder falsches Passwort.'
+            : error.message,
+      });
+    }
+  };
+
+  const handleCreateAccount = async () => {
+     if (!auth) return;
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      toast({
+        title: 'Konto erstellt!',
+        description: 'Sie können sich jetzt anmelden.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Kontoerstellung fehlgeschlagen',
+        description: error.message,
       });
     }
   };
@@ -53,13 +80,13 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Benutzername</Label>
+              <Label htmlFor="email">E-Mail</Label>
               <Input
-                id="username"
-                type="text"
-                placeholder="benni"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="benni@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -79,6 +106,12 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex-col gap-4">
+           <p className="text-xs text-muted-foreground">Noch kein Konto?</p>
+            <Button variant="outline" className="w-full" onClick={handleCreateAccount}>
+              Admin-Konto erstellen
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );

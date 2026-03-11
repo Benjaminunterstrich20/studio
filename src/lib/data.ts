@@ -27,30 +27,7 @@ export const navItems = [
   { name: 'Veranstaltungen', href: '/events' },
 ];
 
-export const articles: Article[] = [
-  {
-    id: '1',
-    slug: 'willkommen-zurueck-in-der-schule',
-    title: 'Willkommen zurück in der Schule!',
-    content: 'Ein neues Schuljahr beginnt! Wir freuen uns, alle Schüler und Lehrer wieder auf dem Campus begrüßen zu dürfen. Auf ein erfolgreiches und spannendes Jahr!',
-    imageId: 'school-building',
-    category: 'Nachrichten',
-    author: 'Admin',
-    publishedAt: '2024-08-15T10:00:00Z',
-    prioritized: false,
-  },
-  {
-    id: '2',
-    slug: 'ankuendigung-des-wissenschaftstags',
-    title: 'Ankündigung des Wissenschaftstags',
-    content: 'Machen Sie sich bereit, Ihre Projekte zu präsentieren! Der jährliche Wissenschaftstag findet nächsten Monat statt. Weitere Details zur Anmeldung folgen in Kürze.',
-    imageId: 'science-fair',
-    category: 'Ankündigungen',
-    author: 'Admin',
-    publishedAt: '2024-08-20T14:30:00Z',
-    prioritized: false,
-  },
-];
+export const articles: Article[] = [];
 
 export const events: Event[] = [
   {

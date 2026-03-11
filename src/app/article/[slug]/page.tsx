@@ -5,15 +5,26 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { useArticles } from '@/context/articles-context';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, query, where, limit } from 'firebase/firestore';
+import type { Article } from '@/lib/data';
 
 export default function ArticlePage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { articles } = useArticles();
+  const db = useFirestore();
 
-  const article = articles.find((a) => a.slug === slug);
+  const articleQuery = db
+    ? query(collection(db, 'articles'), where('slug', '==', slug), limit(1))
+    : null;
+  const { data: articles, loading } = useCollection<Article>(articleQuery);
+
+  if (loading) {
+    return <div className="container mx-auto max-w-4xl px-4 py-8 md:py-12">Laden...</div>;
+  }
+  
+  const article = articles?.[0];
 
   if (!article) {
     notFound();

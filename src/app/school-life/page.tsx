@@ -1,13 +1,21 @@
 'use client';
 
 import { ArticleCard } from '@/components/article-card';
-import { useArticles } from '@/context/articles-context';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import type { Article } from '@/lib/data';
 
 export default function SchoolLifePage() {
-  const { articles } = useArticles();
-  const schoolLifeArticles = articles.filter(
-    (article) => article.category === 'Schulleben'
-  );
+  const db = useFirestore();
+  const articlesQuery = db
+    ? query(
+        collection(db, 'articles'),
+        where('category', '==', 'Schulleben'),
+        orderBy('publishedAt', 'desc')
+      )
+    : null;
+  const { data: schoolLifeArticles, loading } =
+    useCollection<Article>(articlesQuery);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -19,16 +27,19 @@ export default function SchoolLifePage() {
           Ein Einblick in Schüleraktivitäten, Clubs und die Campus-Kultur.
         </p>
       </header>
-      {schoolLifeArticles.length > 0 ? (
+      {loading && <p>Lade Artikel...</p>}
+      {!loading && schoolLifeArticles && schoolLifeArticles.length > 0 ? (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {schoolLifeArticles.map((article) => (
             <ArticleCard key={article.id} article={article} />
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">
-          Keine Artikel zum Schulleben gefunden.
-        </p>
+        !loading && (
+          <p className="text-muted-foreground">
+            Keine Artikel zum Schulleben gefunden.
+          </p>
+        )
       )}
     </div>
   );

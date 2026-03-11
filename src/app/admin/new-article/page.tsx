@@ -27,7 +27,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { navItems, type Category } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useArticles } from '@/context/articles-context';
+import { useUser, useFirestore } from '@/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -52,14 +55,14 @@ const createSlug = (title: string) => {
 export default function NewArticlePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { addArticle } = useArticles();
+  const { user, loading } = useUser();
+  const db = useFirestore();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (isLoggedIn !== 'true') {
+    if (!loading && !user) {
       router.push('/login');
     }
-  }, [router]);
+  }, [user, loading, router]);
 
   const form = useForm<z.infer<typeof articleSchema>>({
     resolver: zodResolver(articleSchema),
@@ -73,26 +76,51 @@ export default function NewArticlePage() {
   });
 
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
+    if (!db || !user) return;
+
     const slug = createSlug(values.title);
     const newArticle = {
       ...values,
-      id: Date.now().toString(),
       slug: slug,
-      author: 'Admin',
+      author: user.email || 'Admin',
+      authorId: user.uid,
       publishedAt: new Date().toISOString(),
       category: values.category as Category,
       imageId: values.imageId || 'school-building',
     };
 
-    addArticle(newArticle);
-
-    toast({
-      title: 'Artikel erstellt!',
-      description: 'Ihr neuer Artikel wurde hinzugefügt.',
-    });
-    form.reset();
-    router.push(`/article/${slug}`);
+    const articlesCollection = collection(db, 'articles');
+    addDoc(articlesCollection, newArticle)
+      .then((docRef) => {
+        toast({
+          title: 'Artikel erstellt!',
+          description: 'Ihr neuer Artikel wurde hinzugefügt.',
+        });
+        form.reset();
+        router.push(`/article/${slug}`);
+      })
+      .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: articlesCollection.path,
+          operation: 'create',
+          requestResourceData: newArticle,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({
+          variant: 'destructive',
+          title: 'Fehler',
+          description: 'Artikel konnte nicht gespeichert werden.',
+        });
+      });
   };
+
+  if (loading || !user) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <p>Laden...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8 md:py-12 animate-fade-in-up">
