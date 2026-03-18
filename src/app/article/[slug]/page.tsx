@@ -38,7 +38,7 @@ export default function ArticlePage() {
   return (
     <article className="container mx-auto max-w-4xl px-4 py-8 md:py-12 animate-fade-in-up">
       <div className="mb-8">
-        <div className="relative mb-8 h-96 w-full overflow-hidden rounded-lg">
+        <div className="relative mb-8 w-full overflow-hidden rounded-lg aspect-video">
           <Image
             src={imageUrl}
             alt={article.title}

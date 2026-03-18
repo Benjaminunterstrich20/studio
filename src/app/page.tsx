@@ -14,7 +14,7 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <section className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-foreground">
+          <h2 className="font-headline text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Aktuelle Nachrichten
           </h2>
           <Button variant="ghost" asChild>
