@@ -1,14 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   ExternalLink,
   Menu,
   Search,
   PlusCircle,
-  LogOut,
-  LogIn,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
@@ -69,27 +67,39 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
       <SheetContent side="left">
         <div className="flex flex-col gap-8">
           <Logo />
-          <nav className="flex flex-col gap-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
-            {isLoggedIn && (
-              <Link
-                href="/admin/new-article"
-                className="text-muted-foreground hover:text-foreground"
-                onClick={() => setIsOpen(false)}
-              >
-                Neuer Artikel
-              </Link>
-            )}
-          </nav>
+          <div className="flex flex-col gap-4">
+             <a
+              href="https://example.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-muted-foreground hover:text-foreground"
+              onClick={() => setIsOpen(false)}
+            >
+              Schulwebseite
+              <ExternalLink className="ml-auto h-4 w-4" />
+            </a>
+            <nav className="flex flex-col gap-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              {isLoggedIn && (
+                <Link
+                  href="/admin/new-article"
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Neuer Artikel
+                </Link>
+              )}
+            </nav>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Artikel suchen..." className="pl-9" />
@@ -102,20 +112,21 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 
 export function Header() {
   const isMobile = useIsMobile();
-  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+    // This state is needed for the "Neuer Artikel" link
+    const checkLoginStatus = () => {
+       setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+    };
+    checkLoginStatus();
     setLoading(false);
-  }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsLoggedIn(false);
-    router.push('/');
-  };
+    // Listen for logout from footer
+    window.addEventListener('storage', checkLoginStatus);
+    return () => window.removeEventListener('storage', checkLoginStatus);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -134,44 +145,28 @@ export function Header() {
             </div>
           )}
 
-          <Button asChild>
-            <a
-              href="https://example.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Schulwebseite
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </a>
-          </Button>
-
-          {!loading && (
-            <>
-              {isLoggedIn ? (
-                <>
-                  {!isMobile && (
-                    <Button variant="outline" asChild>
-                      <Link href="/admin/new-article">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Neuer Artikel
-                      </Link>
-                    </Button>
-                  )}
-                  <Button variant="ghost" onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Abmelden
-                  </Button>
-                </>
-              ) : (
-                <Button asChild>
-                  <Link href="/login">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Anmelden
-                  </Link>
-                </Button>
-              )}
-            </>
+          {!isMobile && (
+            <Button asChild>
+              <a
+                href="https://example.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Schulwebseite
+                <ExternalLink className="ml-2 h-4 w-4" />
+              </a>
+            </Button>
           )}
+
+          {!loading && isLoggedIn && !isMobile && (
+              <Button variant="outline" asChild>
+                <Link href="/admin/new-article">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Neuer Artikel
+                </Link>
+              </Button>
+          )}
+          
           <MobileNav isLoggedIn={isLoggedIn} />
         </div>
       </div>
