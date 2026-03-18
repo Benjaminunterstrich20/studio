@@ -1,4 +1,11 @@
-export type Category = 'Nachrichten' | 'Ankündigungen' | 'Schulleben' | 'Veranstaltungen';
+export type Category =
+  | 'Nachrichten'
+  | 'Ankündigungen'
+  | 'Schulleben'
+  | 'Veranstaltungen'
+  | 'Aktuelles'
+  | 'Schule'
+  | 'Allgemein';
 
 export type Article = {
   id: string;
@@ -21,10 +28,10 @@ export type Event = {
 };
 
 export const navItems = [
-  { name: 'Nachrichten', href: '/news' },
-  { name: 'Ankündigungen', href: '/announcements' },
-  { name: 'Schulleben', href: '/school-life' },
-  { name: 'Veranstaltungen', href: '/events' },
+  { name: 'Aktuelles', href: '/news' },
+  { name: 'Schule', href: '/school-life' },
+  { name: 'Allgemein', href: '/announcements' },
+  { name: 'Archiv', href: '/archive' },
 ];
 
 export const articles: Article[] = [];

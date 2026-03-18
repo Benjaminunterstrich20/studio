@@ -137,11 +137,13 @@ export default function NewArticlePage() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {navItems.map((item) => (
-                      <SelectItem key={item.href} value={item.name}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
+                    {navItems
+                      .filter((item) => item.name !== 'Archiv')
+                      .map((item) => (
+                        <SelectItem key={item.href} value={item.name}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
