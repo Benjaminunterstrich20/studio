@@ -5,12 +5,10 @@ import { usePathname } from 'next/navigation';
 import {
   ExternalLink,
   Menu,
-  Search,
   PlusCircle,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { navItems } from '@/lib/data';
 import { cn } from '@/lib/utils';
@@ -100,10 +98,6 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
               )}
             </nav>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Artikel suchen..." className="pl-9" />
-          </div>
         </div>
       </SheetContent>
     </Sheet>
@@ -138,13 +132,6 @@ export function Header() {
         <MainNav isLoggedIn={isLoggedIn} />
 
         <div className="flex flex-1 items-center justify-end gap-4">
-          {!isMobile && (
-            <div className="relative w-full max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Artikel suchen..." className="pl-9" />
-            </div>
-          )}
-
           {!isMobile && (
             <Button asChild>
               <a
