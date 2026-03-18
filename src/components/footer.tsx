@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LogIn, LogOut } from 'lucide-react';
+import { LogIn, LogOut, PlusCircle } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 
@@ -40,10 +40,18 @@ export function Footer() {
           {!loading && (
             <>
               {isLoggedIn ? (
-                <Button variant="ghost" size="sm" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4" />
-                  <span className="ml-2">Abmelden</span>
-                </Button>
+                <>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/admin/new-article">
+                      <PlusCircle className="h-4 w-4" />
+                      <span className="ml-2">Neuer Artikel</span>
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4" />
+                    <span className="ml-2">Abmelden</span>
+                  </Button>
+                </>
               ) : (
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="/login">

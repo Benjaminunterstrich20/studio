@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import {
   ExternalLink,
   Menu,
-  PlusCircle,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
@@ -46,7 +45,6 @@ function MainNav({ isLoggedIn }: { isLoggedIn: boolean }) {
           {item.name}
         </NavLink>
       ))}
-      {isLoggedIn && <NavLink href="/admin/new-article">Neuer Artikel</NavLink>}
     </nav>
   );
 }
@@ -87,15 +85,6 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
                   {item.name}
                 </Link>
               ))}
-              {isLoggedIn && (
-                <Link
-                  href="/admin/new-article"
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Neuer Artikel
-                </Link>
-              )}
             </nav>
           </div>
         </div>
@@ -143,15 +132,6 @@ export function Header() {
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>
-          )}
-
-          {!loading && isLoggedIn && !isMobile && (
-              <Button variant="outline" asChild>
-                <Link href="/admin/new-article">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Neuer Artikel
-                </Link>
-              </Button>
           )}
           
           <MobileNav isLoggedIn={isLoggedIn} />
