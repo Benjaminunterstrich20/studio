@@ -28,6 +28,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'hardtberg-gymnasium.de',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hardtberg-gymnasium.de',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
