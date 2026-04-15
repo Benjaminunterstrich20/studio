@@ -2,16 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -46,31 +42,6 @@ export default function LoginPage() {
         description:
           error.code === 'auth/invalid-credential'
             ? 'Falsche E-Mail oder falsches Passwort.'
-            : error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreateAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!auth) return;
-    setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      toast({
-        title: 'Konto erstellt',
-        description:
-          'Ihr Administratorkonto wurde erstellt. Sie können sich jetzt anmelden.',
-      });
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Fehler bei der Kontoerstellung',
-        description:
-          error.code === 'auth/email-already-in-use'
-            ? 'Dieses Konto existiert bereits.'
             : error.message,
       });
     } finally {
@@ -118,19 +89,6 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <p className="text-xs text-muted-foreground">
-            Einmalige Einrichtung für den Administrator:
-          </p>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleCreateAccount}
-            disabled={loading}
-          >
-            Admin-Konto erstellen
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );
