@@ -1,11 +1,19 @@
 'use client';
 
+import { useMemo } from 'react';
+import { collection, query, where, orderBy } from 'firebase/firestore';
 import { ArticleCard } from '@/components/article-card';
-import { useArticleStore } from '@/lib/articles';
+import { useFirestore, useCollection } from '@/firebase';
+import type { Article } from '@/lib/data';
 
 export default function SchoolLifePage() {
-  const { getArticlesByCategory, loading } = useArticleStore();
-  const schoolLifeArticles = getArticlesByCategory('Schule');
+  const db = useFirestore();
+  const articlesQuery = useMemo(() => {
+    if (!db) return null;
+    return query(collection(db, 'articles'), where('category', '==', 'Schule'), orderBy('publishedAt', 'desc'));
+  }, [db]);
+
+  const { data: schoolLifeArticles, loading } = useCollection<Article>(articlesQuery);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

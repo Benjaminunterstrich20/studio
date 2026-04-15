@@ -1,19 +1,28 @@
 'use client';
 
+import { useMemo } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
+import { collection, query, where, limit } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { format, parseISO } from 'date-fns';
+import { format, fromUnixTime } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useArticleStore } from '@/lib/articles';
+import { useFirestore, useCollection } from '@/firebase';
+import type { Article } from '@/lib/data';
 
 export default function ArticlePage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { getArticleBySlug, loading } = useArticleStore();
-  
-  const article = getArticleBySlug(slug);
+  const db = useFirestore();
+
+  const articleQuery = useMemo(() => {
+    if (!db) return null;
+    return query(collection(db, 'articles'), where('slug', '==', slug), limit(1));
+  }, [db, slug]);
+
+  const { data: articles, loading } = useCollection<Article>(articleQuery);
+  const article = articles?.[0];
 
   if (loading) {
     return <div className="container mx-auto max-w-4xl px-4 py-8 md:py-12">Laden...</div>;
@@ -35,6 +44,19 @@ export default function ArticlePage() {
       ? placeholderImage.imageHint
       : 'placeholder';
 
+  // Firestore timestamps can be complex. Handle both server and client-side timestamps.
+  const getPublishedDate = () => {
+    if (!article.publishedAt) return new Date();
+    // It's a Firestore Timestamp object on the server, or after fetch.
+    if (typeof article.publishedAt === 'object' && 'seconds' in article.publishedAt) {
+      // @ts-ignore
+      return fromUnixTime(article.publishedAt.seconds);
+    }
+    // It's an ISO string if just created on the client.
+    return new Date(article.publishedAt);
+  };
+
+
   return (
     <article className="container mx-auto max-w-4xl px-4 py-8 md:py-12 animate-fade-in-up">
       <div className="mb-8">
@@ -55,7 +77,7 @@ export default function ArticlePage() {
         </h1>
         <p className="text-lg text-muted-foreground">
           {article.author ? `Von ${article.author} • ` : ''}
-          {format(parseISO(article.publishedAt), 'd. MMMM yyyy', { locale: de })}
+          {format(getPublishedDate(), 'd. MMMM yyyy', { locale: de })}
         </p>
       </div>
       <div className="prose prose-lg max-w-none dark:prose-invert">

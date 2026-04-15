@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -27,7 +27,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { navItems, type Category } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useArticleStore } from '@/lib/articles';
+import { useUser, useFirestore } from '@/firebase';
+import { addArticle } from '@/firebase/firestore/articles';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -37,21 +38,21 @@ const articleSchema = z.object({
   prioritized: z.boolean().default(false),
 });
 
+type ArticleFormValues = z.infer<typeof articleSchema>;
+
 export default function NewArticlePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [isClient, setIsClient] = useState(false);
-  const { addArticle } = useArticleStore();
+  const { user, loading: userLoading } = useUser();
+  const db = useFirestore();
 
   useEffect(() => {
-    setIsClient(true);
-    const loggedIn = localStorage.getItem('isLoggedIn');
-    if (loggedIn !== 'true') {
+    if (!userLoading && !user) {
       router.push('/login');
     }
-  }, [router]);
+  }, [user, userLoading, router]);
 
-  const form = useForm<z.infer<typeof articleSchema>>({
+  const form = useForm<ArticleFormValues>({
     resolver: zodResolver(articleSchema),
     defaultValues: {
       title: '',
@@ -62,20 +63,37 @@ export default function NewArticlePage() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof articleSchema>) => {
-    const newArticle = addArticle({
-      ...values,
-      category: values.category as Category,
-    });
-    toast({
-      title: 'Artikel erstellt!',
-      description: 'Ihr neuer Artikel wurde hinzugefügt.',
-    });
-    form.reset();
-    router.push(`/article/${newArticle.slug}`);
+  const onSubmit = async (values: ArticleFormValues) => {
+    if (!db || !user) {
+      toast({
+        variant: 'destructive',
+        title: 'Fehler',
+        description: 'Benutzer oder Datenbank nicht verfügbar.',
+      });
+      return;
+    }
+
+    try {
+      const newArticle = await addArticle(db, user.uid, user.displayName || user.email || 'Admin', {
+        ...values,
+        category: values.category as Category,
+      });
+      toast({
+        title: 'Artikel erstellt!',
+        description: 'Ihr neuer Artikel wurde hinzugefügt.',
+      });
+      form.reset();
+      router.push(`/article/${newArticle.slug}`);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Oh oh! Etwas ist schief gelaufen.',
+        description: error.message || 'Der Artikel konnte nicht gespeichert werden.',
+      });
+    }
   };
 
-  if (!isClient) {
+  if (userLoading || !user) {
     return (
        <div className="container mx-auto px-4 py-8">
         <p>Laden...</p>
@@ -197,7 +215,9 @@ export default function NewArticlePage() {
               </FormItem>
             )}
           />
-          <Button type="submit">Artikel veröffentlichen</Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+             {form.formState.isSubmitting ? 'Veröffentlichen...' : 'Artikel veröffentlichen'}
+          </Button>
         </form>
       </Form>
     </div>

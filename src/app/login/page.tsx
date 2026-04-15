@@ -3,6 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
+import { useAuth } from '@/firebase';
+import {
   Card,
   CardContent,
   CardDescription,
@@ -17,27 +22,59 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useAuth();
   const { toast } = useToast();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('benni@example.com');
+  const [password, setPassword] = useState('12345');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'benni' && password === '12345') {
-      // In a real app, you'd use a secure session management system.
-      // For this example, we'll use localStorage.
-      localStorage.setItem('isLoggedIn', 'true');
+    if (!auth) return;
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: 'Anmeldung erfolgreich',
         description: 'Sie werden weitergeleitet.',
       });
       router.push('/admin/new-article');
-    } else {
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Anmeldung fehlgeschlagen',
-        description: 'Falscher Benutzername oder falsches Passwort.',
+        description:
+          error.code === 'auth/invalid-credential'
+            ? 'Falsche E-Mail oder falsches Passwort.'
+            : error.message,
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!auth) return;
+    setLoading(true);
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      toast({
+        title: 'Konto erstellt',
+        description:
+          'Ihr Administratorkonto wurde erstellt. Sie können sich jetzt anmelden.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Fehler bei der Kontoerstellung',
+        description:
+          error.code === 'auth/email-already-in-use'
+            ? 'Dieses Konto existiert bereits.'
+            : error.message,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,14 +90,15 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Benutzername</Label>
+              <Label htmlFor="email">E-Mail</Label>
               <Input
-                id="username"
-                type="text"
-                placeholder="benni"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="benni@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -72,13 +110,27 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Anmelden
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Anmelden...' : 'Anmelden'}
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex flex-col gap-4">
+          <p className="text-xs text-muted-foreground">
+            Einmalige Einrichtung für den Administrator:
+          </p>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleCreateAccount}
+            disabled={loading}
+          >
+            Admin-Konto erstellen
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );

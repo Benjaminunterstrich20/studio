@@ -15,8 +15,8 @@ export type Article = {
   imageId: string;
   category: Category;
   author: string;
-  authorId?: string;
-  publishedAt: string;
+  authorId: string;
+  publishedAt: any; // Can be Date, ISO string, or Firestore Timestamp
   prioritized: boolean;
 };
 
@@ -33,8 +33,6 @@ export const navItems = [
   { name: 'Allgemein', href: '/announcements' },
   { name: 'Archiv', href: '/archive' },
 ];
-
-export const articles: Article[] = [];
 
 export const events: Event[] = [
   {

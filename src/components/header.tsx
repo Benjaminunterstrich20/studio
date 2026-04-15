@@ -12,7 +12,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { navItems } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useUser } from '@/firebase';
 
 function NavLink({
   href,
@@ -37,7 +38,7 @@ function NavLink({
   );
 }
 
-function MainNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+function MainNav() {
   return (
     <nav className="hidden items-center space-x-6 md:flex">
       {navItems.map((item) => (
@@ -49,7 +50,7 @@ function MainNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   );
 }
 
-function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -95,21 +96,7 @@ function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
 
 export function Header() {
   const isMobile = useIsMobile();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // This state is needed for the "Neuer Artikel" link
-    const checkLoginStatus = () => {
-       setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
-    };
-    checkLoginStatus();
-    setLoading(false);
-
-    // Listen for logout from footer
-    window.addEventListener('storage', checkLoginStatus);
-    return () => window.removeEventListener('storage', checkLoginStatus);
-  }, []);
+  const { user, loading } = useUser();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -118,7 +105,7 @@ export function Header() {
           <Logo />
         </div>
 
-        <MainNav isLoggedIn={isLoggedIn} />
+        <MainNav />
 
         <div className="flex flex-1 items-center justify-end gap-4">
           {!isMobile && (
@@ -134,7 +121,7 @@ export function Header() {
             </Button>
           )}
           
-          <MobileNav isLoggedIn={isLoggedIn} />
+          <MobileNav />
         </div>
       </div>
     </header>

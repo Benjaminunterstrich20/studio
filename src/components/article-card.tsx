@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Article } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
-import { format, parseISO } from 'date-fns';
+import { format, fromUnixTime } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 type ArticleCardProps = {
@@ -24,6 +24,18 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
   );
   const imageUrl = article.imageId && placeholderImage ? placeholderImage.imageUrl : 'https://picsum.photos/seed/placeholder/600/400';
   const imageHint = article.imageId && placeholderImage ? placeholderImage.imageHint : 'placeholder';
+
+  // Firestore timestamps can be complex. Handle both server and client-side timestamps.
+  const getPublishedDate = () => {
+    if (!article.publishedAt) return new Date();
+    // It's a Firestore Timestamp object on the server, or after fetch.
+    if (typeof article.publishedAt === 'object' && 'seconds' in article.publishedAt) {
+      // @ts-ignore
+      return fromUnixTime(article.publishedAt.seconds);
+    }
+    // It's an ISO string if just created on the client.
+    return new Date(article.publishedAt);
+  };
 
   return (
     <Link href={`/article/${article.slug}`} className="group block">
@@ -56,7 +68,7 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
         <CardFooter className={cn('pb-6', isFeatured ? 'sm:px-8 sm:pb-8' : 'px-6 pb-6')}>
           <p className="text-sm text-muted-foreground">
              {article.author ? `Von ${article.author} • ` : ''}
-            {format(parseISO(article.publishedAt), 'd. MMMM yyyy', { locale: de })}
+            {format(getPublishedDate(), 'd. MMMM yyyy', { locale: de })}
           </p>
         </CardFooter>
       </Card>

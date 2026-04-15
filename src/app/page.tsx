@@ -1,14 +1,22 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
 import { ArticleCard } from '@/components/article-card';
 import { Button } from '@/components/ui/button';
-import { useArticleStore } from '@/lib/articles';
+import { useFirestore, useCollection } from '@/firebase';
+import type { Article } from '@/lib/data';
 
 export default function Home() {
-  const { getArticles, loading } = useArticleStore();
-  const articles = getArticles().slice(0, 6);
+  const db = useFirestore();
+  const articlesQuery = useMemo(() => {
+    if (!db) return null;
+    return query(collection(db, 'articles'), orderBy('publishedAt', 'desc'), limit(6));
+  }, [db]);
+  
+  const { data: articles, loading } = useCollection<Article>(articlesQuery);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
