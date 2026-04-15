@@ -26,15 +26,15 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { navItems, type Category } from '@/lib/data';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useUser, useFirestore } from '@/firebase';
 import { addArticle } from '@/firebase/firestore/articles';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
+  subtitle: z.string().optional(),
   content: z.string().min(1, 'Inhalt ist erforderlich'),
   category: z.string().min(1, 'Kategorie ist erforderlich'),
-  imageId: z.string().optional(),
+  imageUrl: z.string().url('Bitte geben Sie eine gültige URL ein.').optional().or(z.literal('')),
   prioritized: z.boolean().default(false),
 });
 
@@ -56,9 +56,10 @@ export default function NewArticlePage() {
     resolver: zodResolver(articleSchema),
     defaultValues: {
       title: '',
+      subtitle: '',
       content: '',
       category: '',
-      imageId: '',
+      imageUrl: '',
       prioritized: false,
     },
   });
@@ -124,6 +125,19 @@ export default function NewArticlePage() {
           />
           <FormField
             control={form.control}
+            name="subtitle"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Untertitel</FormLabel>
+                <FormControl>
+                  <Input placeholder="Eine kurze Vorschau des Artikels" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="content"
             render={({ field }) => (
               <FormItem>
@@ -168,29 +182,15 @@ export default function NewArticlePage() {
               </FormItem>
             )}
           />
-          <FormField
+           <FormField
             control={form.control}
-            name="imageId"
+            name="imageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Vorschaubild</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Wählen Sie ein Bild" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {PlaceHolderImages.map((image) => (
-                      <SelectItem key={image.id} value={image.id}>
-                        {image.description}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormLabel>Bild-URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://beispiel.com/bild.jpg" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

@@ -11,8 +11,9 @@ export type Article = {
   id: string;
   slug: string;
   title: string;
+  subtitle?: string;
   content: string;
-  imageId: string;
+  imageUrl?: string;
   category: Category;
   author: string;
   authorId: string;

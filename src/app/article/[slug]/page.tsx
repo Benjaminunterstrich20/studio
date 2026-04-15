@@ -7,7 +7,6 @@ import { collection, query, where, limit } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
 import { format, fromUnixTime } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useFirestore, useCollection } from '@/firebase';
 import type { Article } from '@/lib/data';
 
@@ -32,17 +31,7 @@ export default function ArticlePage() {
     notFound();
   }
 
-  const placeholderImage = PlaceHolderImages.find(
-    (img) => img.id === article.imageId
-  );
-  const imageUrl =
-    article.imageId && placeholderImage
-      ? placeholderImage.imageUrl
-      : 'https://picsum.photos/seed/placeholder/1200/800';
-  const imageHint =
-    article.imageId && placeholderImage
-      ? placeholderImage.imageHint
-      : 'placeholder';
+  const imageUrl = article.imageUrl || 'https://picsum.photos/seed/placeholder/1200/800';
 
   // Firestore timestamps can be complex. Handle both server and client-side timestamps.
   const getPublishedDate = () => {
@@ -66,7 +55,6 @@ export default function ArticlePage() {
             alt={article.title}
             fill
             className="rounded-lg object-cover"
-            data-ai-hint={imageHint}
           />
         </div>
         <Badge variant="secondary" className="mb-2">
@@ -75,13 +63,20 @@ export default function ArticlePage() {
         <h1 className="mb-4 font-headline text-4xl font-bold tracking-tight text-foreground md:text-5xl">
           {article.title}
         </h1>
+        {article.subtitle && (
+          <p className="mb-4 text-xl text-muted-foreground md:text-2xl">
+            {article.subtitle}
+          </p>
+        )}
         <p className="text-lg text-muted-foreground">
           {article.author ? `Von ${article.author} • ` : ''}
           {format(getPublishedDate(), 'd. MMMM yyyy', { locale: de })}
         </p>
       </div>
       <div className="prose prose-lg max-w-none dark:prose-invert">
-        <p>{article.content}</p>
+        {article.content.split('\n').map((paragraph, index) => (
+          <p key={index}>{paragraph}</p>
+        ))}
       </div>
     </article>
   );

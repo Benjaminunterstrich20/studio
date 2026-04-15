@@ -9,7 +9,7 @@ import type { Article } from '@/lib/data';
 import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
 
-type ArticleData = Omit<Article, 'id' | 'slug' | 'publishedAt' | 'author'>;
+type ArticleData = Omit<Article, 'id' | 'slug' | 'publishedAt' | 'author' | 'authorId'>;
 
 export async function addArticle(
   db: Firestore,
@@ -35,7 +35,7 @@ export async function addArticle(
     author: authorName,
     authorId: authorId,
     publishedAt: serverTimestamp(),
-    imageId: articleData.imageId || 'school-building',
+    imageUrl: articleData.imageUrl || 'https://images.unsplash.com/photo-1616512659455-111d3367649f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzY2hvb2wlMjBidWlsZGluZ3xlbnwwfHx8fDE3NjU5NDE3MDZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
   };
 
   try {

@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Article } from '@/lib/data';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { format, fromUnixTime } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -19,11 +18,7 @@ type ArticleCardProps = {
 };
 
 export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
-  const placeholderImage = PlaceHolderImages.find(
-    (img) => img.id === article.imageId
-  );
-  const imageUrl = article.imageId && placeholderImage ? placeholderImage.imageUrl : 'https://picsum.photos/seed/placeholder/600/400';
-  const imageHint = article.imageId && placeholderImage ? placeholderImage.imageHint : 'placeholder';
+  const imageUrl = article.imageUrl || 'https://picsum.photos/seed/placeholder/600/400';
 
   // Firestore timestamps can be complex. Handle both server and client-side timestamps.
   const getPublishedDate = () => {
@@ -47,7 +42,6 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
               alt={article.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              data-ai-hint={imageHint}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
@@ -64,6 +58,9 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
           >
             {article.title}
           </h3>
+          {article.subtitle && (
+            <p className="mt-2 text-muted-foreground">{article.subtitle}</p>
+          )}
         </CardContent>
         <CardFooter className={cn('pb-6', isFeatured ? 'sm:px-8 sm:pb-8' : 'px-6 pb-6')}>
           <p className="text-sm text-muted-foreground">

@@ -11,11 +11,17 @@
         "title": {
           "type": "string"
         },
+        "subtitle": {
+          "type": "string",
+          "description": "A short subtitle or summary for the article."
+        },
         "content": {
           "type": "string"
         },
-        "imageId": {
-          "type": "string"
+        "imageUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of a custom image for the article."
         },
         "category": {
           "type": "string"
