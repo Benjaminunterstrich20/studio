@@ -66,7 +66,7 @@ function MobileNav() {
           <Logo />
           <div className="flex flex-col gap-4">
              <a
-              href="https://example.com"
+              href="https://hardtberg-gymnasium.de/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-muted-foreground hover:text-foreground"
@@ -111,7 +111,7 @@ export function Header() {
           {!isMobile && (
             <Button asChild>
               <a
-                href="https://example.com"
+                href="https://hardtberg-gymnasium.de/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
