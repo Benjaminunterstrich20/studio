@@ -21,7 +21,7 @@ export default function ArticlePage() {
     return query(collection(db, 'articles'), where('slug', '==', slug), limit(1));
   }, [db, slug]);
 
-  const { data: articles, loading } = useCollection<Article>(articleQuery);
+  const { data: articles, loading } = useCollection<Article>(articleQuery, 'articles');
   const article = articles?.[0];
 
   if (loading) {

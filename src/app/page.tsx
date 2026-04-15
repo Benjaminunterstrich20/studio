@@ -16,7 +16,7 @@ export default function Home() {
     return query(collection(db, 'articles'), orderBy('publishedAt', 'desc'), limit(6));
   }, [db]);
   
-  const { data: articles, loading } = useCollection<Article>(articlesQuery);
+  const { data: articles, loading } = useCollection<Article>(articlesQuery, 'articles');
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

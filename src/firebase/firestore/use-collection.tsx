@@ -9,7 +9,10 @@ import {
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-export function useCollection<T extends DocumentData>(query: Query<T> | null) {
+export function useCollection<T extends DocumentData>(
+  query: Query<T> | null,
+  collectionPath?: string
+) {
   const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +34,7 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
       },
       async (err) => {
         const permissionError = new FirestorePermissionError({
-          path: query.path,
+          path: collectionPath || 'unknown collection',
           operation: 'list',
         });
         errorEmitter.emit('permission-error', permissionError);
@@ -40,7 +43,7 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
     );
 
     return () => unsubscribe();
-  }, [query]);
+  }, [query, collectionPath]);
 
   return { data, loading };
 }

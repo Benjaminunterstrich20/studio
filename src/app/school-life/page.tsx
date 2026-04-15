@@ -13,7 +13,7 @@ export default function SchoolLifePage() {
     return query(collection(db, 'articles'), where('category', '==', 'Schule'), orderBy('publishedAt', 'desc'));
   }, [db]);
 
-  const { data: schoolLifeArticles, loading } = useCollection<Article>(articlesQuery);
+  const { data: schoolLifeArticles, loading } = useCollection<Article>(articlesQuery, 'articles');
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

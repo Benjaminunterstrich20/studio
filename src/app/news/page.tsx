@@ -13,7 +13,7 @@ export default function NewsPage() {
     return query(collection(db, 'articles'), where('category', '==', 'Aktuelles'), orderBy('publishedAt', 'desc'));
   }, [db]);
 
-  const { data: newsArticles, loading } = useCollection<Article>(articlesQuery);
+  const { data: newsArticles, loading } = useCollection<Article>(articlesQuery, 'articles');
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
