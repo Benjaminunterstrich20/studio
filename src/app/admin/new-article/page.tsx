@@ -74,7 +74,7 @@ export default function NewArticlePage() {
     }
 
     try {
-      const newArticle = await addArticle(db, user.uid, user.displayName || user.email || 'Admin', {
+      const newArticle = await addArticle(db, user.uid, 'Benni', {
         ...values,
         category: values.category as Category,
       });
