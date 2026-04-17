@@ -170,7 +170,6 @@ export default function NewArticlePage() {
                   </FormControl>
                   <SelectContent>
                     {navItems
-                      .filter((item) => item.name !== 'Archiv')
                       .map((item) => (
                         <SelectItem key={item.href} value={item.name}>
                           {item.name}
