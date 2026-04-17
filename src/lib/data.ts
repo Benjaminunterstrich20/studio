@@ -1,4 +1,4 @@
-export type Category = 'Aktuelles' | 'Schule';
+export type Category = 'Aktuelles' | 'Schule' | 'Archiv';
 
 export type Article = {
   id: string;
@@ -24,6 +24,7 @@ export type Event = {
 export const navItems = [
   { name: 'Aktuelles', href: '/news' },
   { name: 'Schule', href: '/school-life' },
+  { name: 'Archiv', href: '/archive' },
 ];
 
 export const events: Event[] = [

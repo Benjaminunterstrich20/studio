@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { collection, query, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { ArticleCard } from '@/components/article-card';
 import { Button } from '@/components/ui/button';
 import { useFirestore, useCollection } from '@/firebase';
@@ -13,14 +13,25 @@ export default function Home() {
   const db = useFirestore();
   const articlesQuery = useMemo(() => {
     if (!db) return null;
-    return query(collection(db, 'articles'), orderBy('publishedAt', 'desc'), limit(6));
+    return query(
+      collection(db, 'articles'),
+      where('category', '==', 'Aktuelles'),
+      orderBy('publishedAt', 'desc'),
+      limit(6)
+    );
   }, [db]);
-  
-  const { data: articles, loading } = useCollection<Article>(articlesQuery, 'articles');
+
+  const { data: articles, loading } = useCollection<Article>(
+    articlesQuery,
+    'articles'
+  );
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <section className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+      <section
+        className="animate-fade-in-up"
+        style={{ animationDelay: '300ms' }}
+      >
         <div className="mb-6 flex items-center justify-between">
           <h2 className="font-headline text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Aktuelle Nachrichten
