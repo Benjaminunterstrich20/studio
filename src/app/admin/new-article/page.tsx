@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -26,8 +27,12 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { navItems, type Category } from '@/lib/data';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore, useFirebaseApp } from '@/firebase';
 import { addArticle } from '@/firebase/firestore/articles';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { Progress } from '@/components/ui/progress';
+import { UploadCloud } from 'lucide-react';
+
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich'),
@@ -45,6 +50,13 @@ export default function NewArticlePage() {
   const { toast } = useToast();
   const { user, loading: userLoading } = useUser();
   const db = useFirestore();
+  const app = useFirebaseApp();
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -63,6 +75,44 @@ export default function NewArticlePage() {
       prioritized: false,
     },
   });
+
+  useEffect(() => {
+    if (!imageFile || !app) return;
+    const storage = getStorage(app);
+    const storageRef = ref(storage, `articles/${Date.now()}_${imageFile.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
+    setUploadProgress(0);
+
+    uploadTask.on('state_changed',
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress(progress);
+        },
+        (error) => {
+            console.error("Upload failed:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Upload fehlgeschlagen',
+                description: 'Das Bild konnte nicht hochgeladen werden.',
+            });
+            setUploadProgress(null);
+            setImagePreview(null);
+            setImageFile(null);
+        },
+        () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                toast({
+                  title: 'Upload erfolgreich!',
+                  description: 'Das Bild wurde hochgeladen.',
+                });
+                form.setValue('imageUrl', downloadURL, { shouldValidate: true });
+                setImagePreview(downloadURL);
+                setUploadProgress(null);
+            });
+        }
+    );
+  }, [imageFile, app, form, toast]);
 
   const onSubmit = async (values: ArticleFormValues) => {
     if (!db || !user) {
@@ -91,6 +141,41 @@ export default function NewArticlePage() {
         title: 'Oh oh! Etwas ist schief gelaufen.',
         description: error.message || 'Der Artikel konnte nicht gespeichert werden.',
       });
+    }
+  };
+
+  const handleFileSelect = (file: File | null) => {
+    if (file && file.type.startsWith('image/')) {
+        setImageFile(file);
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+        setImagePreview(URL.createObjectURL(file));
+    } else if (file) {
+        toast({
+          variant: 'destructive',
+          title: 'Ungültiger Dateityp',
+          description: 'Bitte wählen Sie eine Bilddatei aus.',
+        })
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+        handleFileSelect(files[0]);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+        handleFileSelect(files[0]);
     }
   };
 
@@ -184,11 +269,39 @@ export default function NewArticlePage() {
            <FormField
             control={form.control}
             name="imageUrl"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
-                <FormLabel>Bild-URL</FormLabel>
+                <FormLabel>Artikelbild</FormLabel>
                 <FormControl>
-                  <Input placeholder="https://beispiel.com/bild.jpg" {...field} />
+                  <div
+                    className="relative flex justify-center w-full h-64 p-2 border-2 border-dashed rounded-lg cursor-pointer border-muted-foreground/50 hover:border-primary transition-colors"
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {imagePreview ? (
+                        <Image src={imagePreview} alt="Vorschau" fill className="object-contain rounded-lg" />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                            <UploadCloud className="w-12 h-12 mb-2" />
+                            <p className="text-sm">Bild hierher ziehen</p>
+                            <p className="text-xs">oder klicken zum Auswählen</p>
+                        </div>
+                    )}
+                    {uploadProgress !== null && (
+                        <div className="absolute bottom-2 left-2 right-2">
+                            <Progress value={uploadProgress} className="w-full h-2" />
+                             <p className="text-xs text-center text-white mt-1">{Math.round(uploadProgress)}%</p>
+                        </div>
+                    )}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleFileInputChange}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -214,7 +327,7 @@ export default function NewArticlePage() {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={form.formState.isSubmitting}>
+          <Button type="submit" disabled={form.formState.isSubmitting || uploadProgress !== null}>
              {form.formState.isSubmitting ? 'Veröffentlichen...' : 'Artikel veröffentlichen'}
           </Button>
         </form>
