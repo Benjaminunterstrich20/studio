@@ -18,7 +18,7 @@ type ArticleCardProps = {
 };
 
 export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
-  const imageUrl = article.imageUrl || 'https://picsum.photos/seed/placeholder/600/400';
+  const { imageUrl } = article;
 
   // Firestore timestamps can be complex. Handle both server and client-side timestamps.
   const getPublishedDate = () => {
@@ -36,15 +36,17 @@ export function ArticleCard({ article, isFeatured = false }: ArticleCardProps) {
     <Link href={`/article/${article.slug}`} className="group block">
       <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <CardHeader className="p-0">
-          <div className="relative aspect-[3/2] w-full">
-            <Image
-              src={imageUrl}
-              alt={article.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          </div>
+          {imageUrl && (
+            <div className="relative aspect-[3/2] w-full">
+              <Image
+                src={imageUrl}
+                alt={article.title}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
+          )}
         </CardHeader>
         <CardContent className={cn('p-6', isFeatured ? 'sm:p-8' : 'p-6')}>
           <Badge variant="secondary" className="mb-2">

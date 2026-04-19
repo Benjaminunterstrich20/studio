@@ -31,7 +31,7 @@ export default function ArticlePage() {
     notFound();
   }
 
-  const imageUrl = article.imageUrl || 'https://picsum.photos/seed/placeholder/1200/800';
+  const { imageUrl } = article;
 
   // Firestore timestamps can be complex. Handle both server and client-side timestamps.
   const getPublishedDate = () => {
@@ -49,14 +49,16 @@ export default function ArticlePage() {
   return (
     <article className="container mx-auto max-w-4xl px-4 py-8 md:py-12 animate-fade-in-up">
       <div className="mb-8">
-        <div className="relative mb-8 w-full overflow-hidden rounded-lg aspect-video">
-          <Image
-            src={imageUrl}
-            alt={article.title}
-            fill
-            className="rounded-lg object-cover"
-          />
-        </div>
+        {imageUrl && (
+          <div className="relative mb-8 w-full overflow-hidden rounded-lg aspect-video">
+            <Image
+              src={imageUrl}
+              alt={article.title}
+              fill
+              className="rounded-lg object-cover"
+            />
+          </div>
+        )}
         <Badge variant="secondary" className="mb-2">
           {article.category}
         </Badge>
