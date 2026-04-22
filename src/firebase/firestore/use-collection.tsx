@@ -32,12 +32,21 @@ export function useCollection<T extends DocumentData>(
         setData(docs);
         setLoading(false);
       },
-      async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: collectionPath || 'unknown collection',
-          operation: 'list',
-        });
-        errorEmitter.emit('permission-error', permissionError);
+      (err: any) => {
+        if (err.code === 'permission-denied') {
+            const permissionError = new FirestorePermissionError({
+              path: collectionPath || 'unknown collection',
+              operation: 'list',
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        } else {
+            // For other errors (like missing index), we want to see the original error
+            // in the Next.js development overlay.
+            if (process.env.NODE_ENV === 'development') {
+                throw err;
+            }
+            console.error("Firestore query failed:", err);
+        }
         setLoading(false);
       }
     );

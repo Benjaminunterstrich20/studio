@@ -31,12 +31,21 @@ export function useDoc<T extends DocumentData>(
         }
         setLoading(false);
       },
-      async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: ref.path,
-          operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
+      (err: any) => {
+        if (err.code === 'permission-denied') {
+          const permissionError = new FirestorePermissionError({
+            path: ref.path,
+            operation: 'get',
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        } else {
+          // For other errors, we want to see the original error
+          // in the Next.js development overlay.
+          if (process.env.NODE_ENV === 'development') {
+              throw err;
+          }
+          console.error("Firestore document fetch failed:", err);
+        }
         setLoading(false);
       }
     );
