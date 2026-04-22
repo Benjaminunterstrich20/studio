@@ -2,8 +2,12 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /articles/{document=**} {
-      allow read: if true;
+    match /articles/{articleId} {
+      // Allow anyone to get a single document
+      allow get: if true;
+      // Allow anyone to query or list the collection
+      allow list: if true;
+      // Allow only authenticated users to write (create, update, delete)
       allow write: if request.auth != null;
     }
   }
