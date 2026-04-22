@@ -2,14 +2,16 @@
 import {
   addDoc,
   collection,
+  doc,
   serverTimestamp,
+  updateDoc,
   type Firestore,
 } from 'firebase/firestore';
-import type { Article } from '@/lib/data';
+import type { Article, Category } from '@/lib/data';
 import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
 
-type ArticleData = Omit<Article, 'id' | 'slug' | 'publishedAt' | 'author' | 'authorId'>;
+type ArticleData = Omit<Article, 'id' | 'slug' | 'publishedAt' | 'author' | 'authorId' | 'updatedAt'>;
 
 export async function addArticle(
   db: Firestore,
@@ -35,6 +37,7 @@ export async function addArticle(
     author: authorName,
     authorId: authorId,
     publishedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
     imageUrl: articleData.imageUrl || 'https://images.unsplash.com/photo-1616512659455-111d3367649f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzY2hvb2wlMjBidWlsZGluZ3xlbnwwfHx8fDE3NjU5NDE3MDZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
   };
 
@@ -53,4 +56,42 @@ export async function addArticle(
      // Re-throw other errors
      throw e;
   }
+}
+
+export async function updateArticle(
+    db: Firestore,
+    articleId: string,
+    articleData: ArticleData
+) {
+    const articleRef = doc(db, 'articles', articleId);
+    const slug = articleData.title
+        .toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+
+    const payload = {
+        ...articleData,
+        slug,
+        updatedAt: serverTimestamp(),
+    };
+
+    try {
+        await updateDoc(articleRef, payload);
+        return { ...payload, id: articleId };
+    } catch (e: any) {
+        if (e.code === 'permission-denied') {
+            const permissionError = new FirestorePermissionError({
+                path: articleRef.path,
+                operation: 'update',
+                requestResourceData: payload,
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        }
+        throw e;
+    }
 }

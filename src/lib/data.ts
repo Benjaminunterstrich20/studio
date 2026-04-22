@@ -11,6 +11,7 @@ export type Article = {
   author: string;
   authorId: string;
   publishedAt: any; // Can be Date, ISO string, or Firestore Timestamp
+  updatedAt?: any;
   prioritized: boolean;
 };
 

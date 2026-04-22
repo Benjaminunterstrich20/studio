@@ -3,17 +3,21 @@
 import { useMemo } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { collection, query, where, limit } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Pencil } from 'lucide-react';
 import { format, fromUnixTime } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useUser } from '@/firebase';
 import type { Article } from '@/lib/data';
 
 export default function ArticlePage() {
   const params = useParams();
   const slug = params.slug as string;
   const db = useFirestore();
+  const { user } = useUser();
 
   const articleQuery = useMemo(() => {
     if (!db) return null;
@@ -59,10 +63,20 @@ export default function ArticlePage() {
             />
           </div>
         )}
-        <Badge variant="secondary" className="mb-2">
-          {article.category}
-        </Badge>
-        <h1 className="mb-4 font-headline text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+        <div className="flex items-center justify-between gap-4">
+          <Badge variant="secondary" className="mb-2">
+            {article.category}
+          </Badge>
+           {user && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/admin/edit/${article.id}`}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Bearbeiten
+              </Link>
+            </Button>
+          )}
+        </div>
+        <h1 className="mb-4 mt-2 font-headline text-4xl font-bold tracking-tight text-foreground md:text-5xl">
           {article.title}
         </h1>
         {article.subtitle && (
